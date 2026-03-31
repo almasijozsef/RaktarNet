@@ -4,11 +4,10 @@
         <div class="login-left">
             <h1>RaktarNet</h1>
             <p>Készletkezelés vállalati környezetben</p>
-            <small>Böngészőből elérhető rendszer</small>
         </div>
         <div class="login-right">
             <h2>Bejelentkezés</h2>
-            <p class="muted">Add meg a belépési adataidat</p>
+            <p class="muted">Kérjük, adja meg felhasználónevét és jelszavát.</p>
 
             @if (!string.IsNullOrWhiteSpace(Model.Error))
             {
@@ -22,8 +21,7 @@
                 <input asp-for="Password" type="password" />
                 <button type="submit">Belépés</button>
             </form>
-               <p class="muted">Kérjük, adja meg felhasználónevét és jelszavát.</p>
-
+               
         </div>
     </div>
 </div>
