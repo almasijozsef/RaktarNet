@@ -95,6 +95,24 @@ public IActionResult DeleteProduct(string kod)
     return RedirectToAction("Index");
 }
 
+[HttpPost]
+public IActionResult AddProduct(string nev, string kod, int mennyiseg, int egysegar)
+{
+    var user = CurrentUser();
+    if (user is null)
+        return RedirectToAction("Login", "Account");
+
+    try
+    {
+        _db.AddProduct(nev, kod, mennyiseg, egysegar, user.Username);
+    }
+    catch (Exception ex)
+    {
+        TempData["Error"] = ex.Message;
+    }
+
+    return RedirectToAction("Index");
+}
     [HttpPost]
     public IActionResult MoveStock(string kod, string tipus, int mennyiseg, string megjegyzes)
     {
