@@ -79,12 +79,29 @@ public IActionResult UpdateProduct(string oldKod, string nev, string kod, int me
     }
 
     [HttpPost]
-    public IActionResult DeleteProduct(string kod)
+public IActionResult DeleteProduct(string kod)
+{
+    var user = CurrentUser();
+    if (user is null)
+        return RedirectToAction("Login", "Account");
+
+    if (user.Role != "vezeto" && user.Role != "admin")
     {
-        try { _db.DeleteProduct(kod); }
-        catch (Exception ex) { TempData["Error"] = ex.Message; }
+        TempData["Error"] = "Nincs jogosultságod a termék törléséhez.";
         return RedirectToAction("Index");
     }
+
+    try
+    {
+        _db.DeleteProduct(kod);
+    }
+    catch (Exception ex)
+    {
+        TempData["Error"] = ex.Message;
+    }
+
+    return RedirectToAction("Index");
+}
 
     [HttpPost]
     public IActionResult MoveStock(string kod, string tipus, int mennyiseg, string megjegyzes)
