@@ -101,10 +101,13 @@
 
     <button type="submit">Mentés</button>
 </form>
-                            <form method="post" asp-action="DeleteProduct" onsubmit="return confirm('Biztosan törlöd?');">
-                                <input type="hidden" name="kod" value="@item.Kod" />
-                                <button type="submit" class="danger">Törlés</button>
-                            </form>
+                            @if (Model.CurrentUser?.Role == "vezeto" || Model.CurrentUser?.Role == "admin")
+{
+    <form method="post" asp-action="DeleteProduct" onsubmit="return confirm('Biztosan törlöd?');">
+        <input type="hidden" name="kod" value="@item.Kod" />
+        <button type="submit" class="danger">Törlés</button>
+    </form>
+}
                         </details>
                     </td>
                 </tr>
