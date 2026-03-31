@@ -37,30 +37,22 @@ public class HomeController : Controller
 
         return View(vm);
     }
-
-    [HttpPost]
+[HttpPost]
 public IActionResult UpdateProduct(string oldKod, string nev, string kod, int mennyiseg, int egysegar)
 {
     var user = CurrentUser();
     if (user is null)
         return RedirectToAction("Login", "Account");
 
+    if (user.Role != "vezeto" && user.Role != "admin")
+    {
+        TempData["Error"] = "Nincs jogosultságod a termék módosításához.";
+        return RedirectToAction("Index");
+    }
+
     try
     {
-        var existing = _db.GetProducts().FirstOrDefault(x => x.Kod == oldKod);
-        if (existing is null)
-            throw new Exception("A termék nem található.");
-
-        // Csak vezető és admin módosíthat árat
-        if (user.Role == "vezeto" || user.Role == "admin")
-        {
-            _db.UpdateProduct(oldKod, nev, kod, mennyiseg, egysegar);
-        }
-        else
-        {
-            // Raktárosnál az eredeti ár marad
-            _db.UpdateProduct(oldKod, nev, kod, mennyiseg, existing.Egysegar);
-        }
+        _db.UpdateProduct(oldKod, nev, kod, mennyiseg, egysegar);
     }
     catch (Exception ex)
     {
@@ -70,7 +62,7 @@ public IActionResult UpdateProduct(string oldKod, string nev, string kod, int me
     return RedirectToAction("Index");
 }
 
-    [HttpPost]
+[HttpPost]
 public IActionResult DeleteProduct(string kod)
 {
     var user = CurrentUser();
