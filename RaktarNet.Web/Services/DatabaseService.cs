@@ -129,18 +129,33 @@ public sealed class DatabaseService
         return list;
     }
 
-    public void AddProduct(string nev, string kod, int mennyiseg, int egysegar)
-    {
-        using var conn = Open();
-        using var cmd = conn.CreateCommand();
-        cmd.CommandText = "INSERT INTO termekek (nev, kod, mennyiseg, egysegar, modositva) VALUES ($n, $k, $m, $e, $d)";
-        cmd.Parameters.AddWithValue("$n", nev.Trim());
-        cmd.Parameters.AddWithValue("$k", kod.Trim());
-        cmd.Parameters.AddWithValue("$m", mennyiseg);
-        cmd.Parameters.AddWithValue("$e", egysegar);
-        cmd.Parameters.AddWithValue("$d", DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss"));
-        cmd.ExecuteNonQuery();
-    }
+    public void AddProduct(string nev, string kod, int mennyiseg, int egysegar, string vegrehajto)
+{
+    using var conn = Open();
+
+    var now = DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss");
+
+    using var cmd = conn.CreateCommand();
+    cmd.CommandText = "INSERT INTO termekek (nev, kod, mennyiseg, egysegar, modositva) VALUES ($n, $k, $m, $e, $d)";
+    cmd.Parameters.AddWithValue("$n", nev.Trim());
+    cmd.Parameters.AddWithValue("$k", kod.Trim());
+    cmd.Parameters.AddWithValue("$m", mennyiseg);
+    cmd.Parameters.AddWithValue("$e", egysegar);
+    cmd.Parameters.AddWithValue("$d", now);
+    cmd.ExecuteNonQuery();
+
+    using var log = conn.CreateCommand();
+    log.CommandText = "INSERT INTO mozgasnaplo (datum, tipus, termek_nev, termek_kod, mennyiseg, keszlet_utana, megjegyzes, vegrehajto) VALUES ($d, $t, $tn, $tk, $m, $ku, $megj, $v)";
+    log.Parameters.AddWithValue("$d", now);
+    log.Parameters.AddWithValue("$t", "Új termék");
+    log.Parameters.AddWithValue("$tn", nev.Trim());
+    log.Parameters.AddWithValue("$tk", kod.Trim());
+    log.Parameters.AddWithValue("$m", mennyiseg);
+    log.Parameters.AddWithValue("$ku", mennyiseg);
+    log.Parameters.AddWithValue("$megj", "Új termék rögzítése");
+    log.Parameters.AddWithValue("$v", vegrehajto);
+    log.ExecuteNonQuery();
+}
 
     public void UpdateProduct(string oldCode, string nev, string kod, int mennyiseg, int egysegar)
     {
