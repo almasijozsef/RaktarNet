@@ -71,14 +71,6 @@ public IActionResult UpdateProduct(string oldKod, string nev, string kod, int me
 }
 
     [HttpPost]
-    public IActionResult UpdateProduct(string oldKod, string nev, string kod, int mennyiseg, int egysegar)
-    {
-        try { _db.UpdateProduct(oldKod, nev, kod, mennyiseg, egysegar); }
-        catch (Exception ex) { TempData["Error"] = ex.Message; }
-        return RedirectToAction("Index");
-    }
-
-    [HttpPost]
 public IActionResult DeleteProduct(string kod)
 {
     var user = CurrentUser();
