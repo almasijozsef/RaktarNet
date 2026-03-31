@@ -1,0 +1,187 @@
+@model DashboardViewModel
+<div class="topbar">
+    <div>
+        <strong>RaktarNet</strong>
+        <span class="muted">Felhasználó: @Model.CurrentUser?.Username | Jogosultság: @Model.CurrentUser?.Role</span>
+    </div>
+    <a class="logout" asp-controller="Account" asp-action="Logout">Kijelentkezés</a>
+</div>
+
+<div class="container">
+    @if (TempData["Error"] is string err && !string.IsNullOrWhiteSpace(err))
+    {
+        <div class="error-box">@err</div>
+    }
+
+    @if (Model.CurrentUser?.Role == "vezeto")
+    {
+        <div class="card">
+            <h3>Áttekintés</h3>
+            <div class="stats">
+                <div class="stat"><span>Termékek száma</span><strong>@Model.Products.Count</strong></div>
+                <div class="stat"><span>Összes darabszám</span><strong>@Model.Products.Sum(x => x.Mennyiseg)</strong></div>
+                <div class="stat"><span>Összes készletérték</span><strong>@String.Format("{0:N0} Ft", Model.Products.Sum(x => x.Mennyiseg * x.Egysegar))</strong></div>
+                <div class="stat"><span>Naplóbejegyzések</span><strong>@Model.Logs.Count</strong></div>
+            </div>
+        </div>
+    }
+
+    <div class="grid">
+        <div class="card">
+            <h3>Készlet keresése</h3>
+            <form method="get" class="inline-form">
+                <input type="text" name="search" value="@Model.Search" placeholder="Termék vagy kód" />
+                <button type="submit">Keresés</button>
+            </form>
+
+            <h3>Új termék</h3>
+            <form method="post" asp-action="AddProduct" class="stack-form">
+                <input name="nev" placeholder="Termék neve" required />
+                <input name="kod" placeholder="Kód" required />
+                <input name="mennyiseg" type="number" placeholder="Mennyiség" required />
+                <input name="egysegar" type="number" placeholder="Egységár" required />
+                <button type="submit">Hozzáadás</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h3>Bevételezés / Kiadás</h3>
+            <form method="post" asp-action="MoveStock" class="stack-form">
+                <input name="kod" placeholder="Termék kódja" required />
+                <select name="tipus">
+                    <option>Bevételezés</option>
+                    <option>Kiadás</option>
+                </select>
+                <input name="mennyiseg" type="number" placeholder="Mennyiség" required />
+                <input name="megjegyzes" placeholder="Megjegyzés" />
+                <button type="submit">Mentés</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Készletlista</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Termék</th>
+                    <th>Kód</th>
+                    <th>Készlet</th>
+                    <th>Egységár</th>
+                    <th>Utolsó módosítás</th>
+                    <th>Műveletek</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in Model.Products)
+            {
+                <tr>
+                    <td>@item.Nev</td>
+                    <td>@item.Kod</td>
+                    <td>@item.Mennyiseg</td>
+                    <td>@item.Egysegar Ft</td>
+                    <td>@item.Modositva</td>
+                    <td>
+                        <details>
+                            <summary>Módosítás</summary>
+                            <form method="post" asp-action="UpdateProduct" class="mini-form">
+                                <input type="hidden" name="oldKod" value="@item.Kod" />
+                                <input name="nev" value="@item.Nev" required />
+                                <input name="kod" value="@item.Kod" required />
+                                <input name="mennyiseg" type="number" value="@item.Mennyiseg" required />
+                                <input name="egysegar" type="number" value="@item.Egysegar" required />
+                                <button type="submit">Mentés</button>
+                            </form>
+                            <form method="post" asp-action="DeleteProduct" onsubmit="return confirm('Biztosan törlöd?');">
+                                <input type="hidden" name="kod" value="@item.Kod" />
+                                <button type="submit" class="danger">Törlés</button>
+                            </form>
+                        </details>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h3>Mozgásnapló</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Dátum</th>
+                    <th>Típus</th>
+                    <th>Termék</th>
+                    <th>Kód</th>
+                    <th>Mennyiség</th>
+                    <th>Készlet utána</th>
+                    <th>Megjegyzés</th>
+                    <th>Végrehajtotta</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var log in Model.Logs)
+            {
+                <tr>
+                    <td>@log.Datum</td>
+                    <td>@log.Tipus</td>
+                    <td>@log.TermekNev</td>
+                    <td>@log.TermekKod</td>
+                    <td>@log.Mennyiseg</td>
+                    <td>@log.KeszletUtana</td>
+                    <td>@log.Megjegyzes</td>
+                    <td>@log.Vegrehajto</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+
+    @if (Model.CurrentUser?.Role == "admin")
+    {
+        <div class="card">
+            <h3>Dolgozók kezelése</h3>
+            <form method="post" asp-action="AddUser" class="inline-form">
+                <input name="username" placeholder="Felhasználónév" required />
+                <input name="password" type="password" placeholder="Jelszó" required />
+                <select name="role">
+                    <option>admin</option>
+                    <option selected>raktaros</option>
+                    <option>vezeto</option>
+                </select>
+                <button type="submit">Dolgozó felvétele</button>
+            </form>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Felhasználónév</th>
+                        <th>Jogosultság</th>
+                        <th>Aktív</th>
+                        <th>Létrehozva</th>
+                        <th>Törlés</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var u in Model.Users)
+                {
+                    <tr>
+                        <td>@u.Id</td>
+                        <td>@u.Username</td>
+                        <td>@u.Role</td>
+                        <td>@(u.Aktiv == 1 ? "Igen" : "Nem")</td>
+                        <td>@u.Letrehozva</td>
+                        <td>
+                            <form method="post" asp-action="DeleteUser" onsubmit="return confirm('Biztosan törlöd?');">
+                                <input type="hidden" name="id" value="@u.Id" />
+                                <button type="submit" class="danger">Törlés</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

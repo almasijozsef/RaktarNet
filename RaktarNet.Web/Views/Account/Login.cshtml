@@ -1,0 +1,29 @@
+@model LoginViewModel
+<div class="login-page">
+    <div class="login-card">
+        <div class="login-left">
+            <h1>RaktarNet</h1>
+            <p>Készletkezelés vállalati környezetben</p>
+            <small>Böngészőből elérhető rendszer</small>
+        </div>
+        <div class="login-right">
+            <h2>Bejelentkezés</h2>
+            <p class="muted">Add meg a belépési adataidat</p>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Error))
+            {
+                <div class="error-box">@Model.Error</div>
+            }
+
+            <form method="post">
+                <label>Felhasználónév</label>
+                <input asp-for="Username" />
+                <label>Jelszó</label>
+                <input asp-for="Password" type="password" />
+                <button type="submit">Belépés</button>
+            </form>
+
+            <div class="muted demo">Első belépés: admin / admin123</div>
+        </div>
+    </div>
+</div>

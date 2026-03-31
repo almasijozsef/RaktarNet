@@ -1,0 +1,134 @@
+body{
+    margin:0;
+    font-family:Segoe UI, Arial, sans-serif;
+    background:#eef4fb;
+    color:#0f172a
+}
+.topbar{
+    background:#1d4ed8;
+    color:#fff;
+    padding:16px 24px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center
+}
+.logout{
+    color:#fff;
+    text-decoration:none;
+    font-weight:600
+}
+.container{
+    max-width:1300px;
+    margin:20px auto;
+    padding:0 16px
+}
+.card{
+    background:#fff;
+    border-radius:14px;
+    padding:18px;
+    box-shadow:0 4px 18px rgba(0,0,0,.06);
+    margin-bottom:18px
+}
+.grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px
+}
+.stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:14px
+}
+.stat{
+    background:#f8fbff;
+    border:1px solid #dbeafe;
+    border-radius:12px;
+    padding:14px
+}
+.stat span{
+    display:block;
+    color:#64748b;
+    font-size:13px;
+    margin-bottom:8px
+}
+.stat strong{
+    font-size:22px
+}
+input,select,button{
+    padding:10px 12px;
+    border-radius:10px;
+    border:1px solid #cbd5e1;
+    font-size:14px
+}
+button{
+    background:#2563eb;
+    color:#fff;
+    border:none;
+    cursor:pointer;
+    font-weight:600
+}
+button.danger{background:#dc2626}
+.inline-form,.stack-form,.mini-form{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap
+}
+.stack-form{
+    flex-direction:column;
+    max-width:360px
+}
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:10px
+}
+th,td{
+    text-align:left;
+    border-bottom:1px solid #e5e7eb;
+    padding:10px;
+    vertical-align:top
+}
+th{
+    background:#f8fafc
+}
+.muted{color:#64748b}
+.error-box{
+    background:#fee2e2;
+    color:#991b1b;
+    padding:12px;
+    border-radius:10px;
+    margin:12px 0
+}
+.login-page{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center
+}
+.login-card{
+    width:880px;
+    display:grid;
+    grid-template-columns:320px 1fr;
+    background:#fff;
+    border-radius:22px;
+    overflow:hidden;
+    box-shadow:0 10px 30px rgba(0,0,0,.08)
+}
+.login-left{
+    background:#0f172a;
+    color:#fff;
+    padding:36px
+}
+.login-left p,.login-left small{color:#cbd5e1}
+.login-right{
+    padding:36px
+}
+.login-right form{
+    display:flex;
+    flex-direction:column;
+    gap:10px
+}
+.demo{margin-top:12px}
+@media (max-width:900px){
+    .grid,.stats,.login-card{grid-template-columns:1fr}
+}
