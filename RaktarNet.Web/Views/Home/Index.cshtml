@@ -85,13 +85,22 @@
                         <details>
                             <summary>Módosítás</summary>
                             <form method="post" asp-action="UpdateProduct" class="mini-form">
-                                <input type="hidden" name="oldKod" value="@item.Kod" />
-                                <input name="nev" value="@item.Nev" required />
-                                <input name="kod" value="@item.Kod" required />
-                                <input name="mennyiseg" type="number" value="@item.Mennyiseg" required />
-                                <input name="egysegar" type="number" value="@item.Egysegar" required />
-                                <button type="submit">Mentés</button>
-                            </form>
+    <input type="hidden" name="oldKod" value="@item.Kod" />
+    <input name="nev" value="@item.Nev" required />
+    <input name="kod" value="@item.Kod" required />
+    <input name="mennyiseg" type="number" value="@item.Mennyiseg" required />
+
+    @if (Model.CurrentUser?.Role == "vezeto" || Model.CurrentUser?.Role == "admin")
+    {
+        <input name="egysegar" type="number" value="@item.Egysegar" required />
+    }
+    else
+    {
+        <input name="egysegar" type="number" value="@item.Egysegar" readonly />
+    }
+
+    <button type="submit">Mentés</button>
+</form>
                             <form method="post" asp-action="DeleteProduct" onsubmit="return confirm('Biztosan törlöd?');">
                                 <input type="hidden" name="kod" value="@item.Kod" />
                                 <button type="submit" class="danger">Törlés</button>
