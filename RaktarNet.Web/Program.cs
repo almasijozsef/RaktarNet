@@ -12,9 +12,16 @@ builder.Services.AddSession(options =>
 
 var app = builder.Build();
 
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
+}
+
 var db = app.Services.GetRequiredService<DatabaseService>();
 db.Initialize();
 
+app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseSession();
