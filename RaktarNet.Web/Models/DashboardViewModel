@@ -4,7 +4,7 @@ namespace RaktarNet.Web.Models
 {
     public class DashboardViewModel
     {
-        public SessionUser? CurrentUser { get; set; };
+        public SessionUser CurrentUser { get; set; } = default!;
 
         public List<Product> Products { get; set; } = new();
         public List<LogEntry> Logs { get; set; } = new();
@@ -13,6 +13,7 @@ namespace RaktarNet.Web.Models
         public string Search { get; set; } = "";
         public string LogSearch { get; set; } = "";
         public string LogTipus { get; set; } = "";
+
         public string LogUser { get; set; } = "";
         public string LogDateFrom { get; set; } = "";
         public string LogDateTo { get; set; } = "";
