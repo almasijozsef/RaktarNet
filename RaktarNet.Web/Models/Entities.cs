@@ -21,7 +21,7 @@ public class LogEntry
     public int KeszletUtana { get; set; }
     public string Megjegyzes { get; set; } = "";
     public string Vegrehajto { get; set; } = "";
-} 
+} // 👈 EZ HIÁNYZOTT
 
 public class UserItem
 {
