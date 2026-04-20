@@ -134,11 +134,35 @@
                    placeholder="Terméknév vagy kód" />
 
             <select name="logTipus">
-                <option value="">Minden művelet</option>
-                <option value="Új termék" @(Model.LogTipus == "Új termék" ? "selected" : "")>Új termék</option>
-                <option value="Bevételezés" @(Model.LogTipus == "Bevételezés" ? "selected" : "")>Bevételezés</option>
-                <option value="Kiadás" @(Model.LogTipus == "Kiadás" ? "selected" : "")>Kiadás</option>
-            </select>
+    @if (Model.LogTipus == "Új termék")
+    {
+        <option value="">Minden művelet</option>
+        <option value="Új termék" selected>Új termék</option>
+        <option value="Bevételezés">Bevételezés</option>
+        <option value="Kiadás">Kiadás</option>
+    }
+    else if (Model.LogTipus == "Bevételezés")
+    {
+        <option value="">Minden művelet</option>
+        <option value="Új termék">Új termék</option>
+        <option value="Bevételezés" selected>Bevételezés</option>
+        <option value="Kiadás">Kiadás</option>
+    }
+    else if (Model.LogTipus == "Kiadás")
+    {
+        <option value="">Minden művelet</option>
+        <option value="Új termék">Új termék</option>
+        <option value="Bevételezés">Bevételezés</option>
+        <option value="Kiadás" selected>Kiadás</option>
+    }
+    else
+    {
+        <option value="" selected>Minden művelet</option>
+        <option value="Új termék">Új termék</option>
+        <option value="Bevételezés">Bevételezés</option>
+        <option value="Kiadás">Kiadás</option>
+    }
+</select>
 
             <input type="text"
                    name="logUser"
