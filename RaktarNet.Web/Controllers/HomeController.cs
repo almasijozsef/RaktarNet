@@ -20,110 +20,124 @@ public class HomeController : Controller
         return raw is null ? null : JsonSerializer.Deserialize<SessionUser>(raw);
     }
 
-public IActionResult Index(
-    string search = "",
-    string logSearch = "",
-    string logTipus = "",
-    string logUser = "",
-    string logDateFrom = "",
-    string logDateTo = "")
-{
-    var user = CurrentUser();
-    if (user is null)
-        return RedirectToAction("Login", "Account");
-
-    var vm = new DashboardViewModel
+    public IActionResult Index(
+        string search = "",
+        string logSearch = "",
+        string logTipus = "",
+        string logUser = "",
+        string logDateFrom = "",
+        string logDateTo = "")
     {
-        CurrentUser = user,
-        Products = _db.GetProducts(search),
-        Logs = _db.GetLogs(logSearch, logTipus, logUser, logDateFrom, logDateTo),
-        Users = user.Role == "admin" ? _db.GetUsers() : new List<UserItem>(),
-        Search = search,
-        LogSearch = logSearch,
-        LogTipus = logTipus,
-        LogUser = logUser,
-        LogDateFrom = logDateFrom,
-        LogDateTo = logDateTo
-    };
+        var user = CurrentUser();
+        if (user is null)
+            return RedirectToAction("Login", "Account");
 
-    return View(vm);
-}
-[HttpPost]
-public IActionResult UpdateProduct(string oldKod, string nev, string kod, int mennyiseg, int egysegar)
-{
-    var user = CurrentUser();
-    if (user is null)
-        return RedirectToAction("Login", "Account");
+        var vm = new DashboardViewModel
+        {
+            CurrentUser = user,
+            Products = _db.GetProducts(search),
+            Logs = _db.GetLogs(logSearch, logTipus, logUser, logDateFrom, logDateTo),
+            Users = user.Role == "admin" ? _db.GetUsers() : new List<UserItem>(),
+            Search = search,
+            LogSearch = logSearch,
+            LogTipus = logTipus,
+            LogUser = logUser,
+            LogDateFrom = logDateFrom,
+            LogDateTo = logDateTo
+        };
 
-    if (user.Role != "vezeto" && user.Role != "admin")
+        return View(vm);
+    }
+
+    [HttpPost]
+    public IActionResult UpdateProduct(string oldKod, string nev, string kod, int mennyiseg, int egysegar)
     {
-        TempData["Error"] = "Nincs jogosultságod a termék módosításához.";
+        var user = CurrentUser();
+        if (user is null)
+            return RedirectToAction("Login", "Account");
+
+        if (user.Role != "vezeto" && user.Role != "admin")
+        {
+            TempData["Error"] = "Nincs jogosultságod a termék módosításához.";
+            return RedirectToAction("Index");
+        }
+
+        try
+        {
+            _db.UpdateProduct(oldKod, nev, kod, mennyiseg, egysegar);
+            TempData["Success"] = "A termék sikeresen módosítva lett.";
+        }
+        catch (Exception ex)
+        {
+            TempData["Error"] = ex.Message;
+        }
+
         return RedirectToAction("Index");
     }
 
-    try
+    [HttpPost]
+    public IActionResult DeleteProduct(string kod)
     {
-        _db.UpdateProduct(oldKod, nev, kod, mennyiseg, egysegar);
-    }
-    catch (Exception ex)
-    {
-        TempData["Error"] = ex.Message;
-    }
+        var user = CurrentUser();
+        if (user is null)
+            return RedirectToAction("Login", "Account");
 
-    return RedirectToAction("Index");
-}
+        if (user.Role != "vezeto" && user.Role != "admin")
+        {
+            TempData["Error"] = "Nincs jogosultságod a termék törléséhez.";
+            return RedirectToAction("Index");
+        }
 
-[HttpPost]
-public IActionResult DeleteProduct(string kod)
-{
-    var user = CurrentUser();
-    if (user is null)
-        return RedirectToAction("Login", "Account");
+        try
+        {
+            _db.DeleteProduct(kod);
+            TempData["Success"] = "A termék sikeresen törölve lett.";
+        }
+        catch (Exception ex)
+        {
+            TempData["Error"] = ex.Message;
+        }
 
-    if (user.Role != "vezeto" && user.Role != "admin")
-    {
-        TempData["Error"] = "Nincs jogosultságod a termék törléséhez.";
         return RedirectToAction("Index");
     }
 
-    try
+    [HttpPost]
+    public IActionResult AddProduct(string nev, string kod, int mennyiseg, int egysegar)
     {
-        _db.DeleteProduct(kod);
-    }
-    catch (Exception ex)
-    {
-        TempData["Error"] = ex.Message;
-    }
+        var user = CurrentUser();
+        if (user is null)
+            return RedirectToAction("Login", "Account");
 
-    return RedirectToAction("Index");
-}
+        try
+        {
+            _db.AddProduct(nev, kod, mennyiseg, egysegar, user.Username);
+            TempData["Success"] = "Az új termék sikeresen rögzítve lett.";
+        }
+        catch (Exception ex)
+        {
+            TempData["Error"] = ex.Message;
+        }
 
-[HttpPost]
-public IActionResult AddProduct(string nev, string kod, int mennyiseg, int egysegar)
-{
-    var user = CurrentUser();
-    if (user is null)
-        return RedirectToAction("Login", "Account");
-
-    try
-    {
-        _db.AddProduct(nev, kod, mennyiseg, egysegar, user.Username);
-    }
-    catch (Exception ex)
-    {
-        TempData["Error"] = ex.Message;
+        return RedirectToAction("Index");
     }
 
-    return RedirectToAction("Index");
-}
     [HttpPost]
     public IActionResult MoveStock(string kod, string tipus, int mennyiseg, string megjegyzes)
     {
         var user = CurrentUser();
-        if (user is null) return RedirectToAction("Login", "Account");
+        if (user is null)
+            return RedirectToAction("Login", "Account");
 
-        try { _db.MoveStock(kod, tipus, mennyiseg, megjegyzes, user.Username); }
-        catch (Exception ex) { TempData["Error"] = ex.Message; }
+        try
+        {
+            _db.MoveStock(kod, tipus, mennyiseg, megjegyzes, user.Username);
+            TempData["Success"] = $"A(z) {tipus.ToLower()} sikeresen végrehajtva.";
+        }
+        catch (Exception ex)
+        {
+            TempData["Error"] = ex.Message;
+        }
+
         return RedirectToAction("Index");
     }
 
@@ -132,10 +146,21 @@ public IActionResult AddProduct(string nev, string kod, int mennyiseg, int egyse
     {
         var user = CurrentUser();
         if (user is null || user.Role != "admin")
+        {
+            TempData["Error"] = "Nincs jogosultságod új felhasználó létrehozásához.";
             return RedirectToAction("Index");
+        }
 
-        try { _db.AddUser(username, password, role); }
-        catch (Exception ex) { TempData["Error"] = ex.Message; }
+        try
+        {
+            _db.AddUser(username, password, role);
+            TempData["Success"] = "Az új felhasználó sikeresen létrehozva.";
+        }
+        catch (Exception ex)
+        {
+            TempData["Error"] = ex.Message;
+        }
+
         return RedirectToAction("Index");
     }
 
@@ -144,10 +169,21 @@ public IActionResult AddProduct(string nev, string kod, int mennyiseg, int egyse
     {
         var user = CurrentUser();
         if (user is null || user.Role != "admin")
+        {
+            TempData["Error"] = "Nincs jogosultságod a felhasználó törléséhez.";
             return RedirectToAction("Index");
+        }
 
-        try { _db.DeleteUser(id); }
-        catch (Exception ex) { TempData["Error"] = ex.Message; }
+        try
+        {
+            _db.DeleteUser(id);
+            TempData["Success"] = "A felhasználó sikeresen törölve lett.";
+        }
+        catch (Exception ex)
+        {
+            TempData["Error"] = ex.Message;
+        }
+
         return RedirectToAction("Index");
     }
 }
