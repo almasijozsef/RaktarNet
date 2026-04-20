@@ -23,7 +23,7 @@
 </div>
 
 <div class="container">
-    @if (Model.CurrentUser?.Role == "vezeto")
+    @if (Model.CurrentUser?.Role == "vezeto" || Model.CurrentUser?.Role == "admin")
     {
         <div class="card">
             <h3>Áttekintés</h3>
@@ -32,6 +32,11 @@
                 <div class="stat"><span>Összes darabszám</span><strong>@Model.Products.Sum(x => x.Mennyiseg)</strong></div>
                 <div class="stat"><span>Összes készletérték</span><strong>@String.Format("{0:N0} Ft", Model.Products.Sum(x => x.Mennyiseg * x.Egysegar))</strong></div>
                 <div class="stat"><span>Naplóbejegyzések</span><strong>@Model.Logs.Count</strong></div>
+
+                <div class="stat"><span>Mai mozgások</span><strong>@Model.MaiMozgasokSzama</strong></div>
+                <div class="stat"><span>Mai bevételezések</span><strong>@Model.MaiBevetelezesekSzama</strong></div>
+                <div class="stat"><span>Mai kiadások</span><strong>@Model.MaiKiadasokSzama</strong></div>
+                <div class="stat"><span>Alacsony készletű termékek</span><strong>@Model.AlacsonyKeszletuTermekekSzama</strong></div>
             </div>
         </div>
     }
@@ -48,8 +53,8 @@
             <form method="post" asp-action="AddProduct" class="stack-form" onsubmit="return confirmAddProduct(this)">
                 <input name="nev" placeholder="Termék neve" required />
                 <input name="kod" placeholder="Kód" required />
-                <input name="mennyiseg" type="number" placeholder="Mennyiség" required />
-                <input name="egysegar" type="number" placeholder="Egységár" required />
+                <input name="mennyiseg" type="number" placeholder="Mennyiség" min="1" required />
+                <input name="egysegar" type="number" placeholder="Egységár" min="0" required />
                 <button type="submit">Hozzáadás</button>
             </form>
         </div>
@@ -59,10 +64,10 @@
             <form method="post" asp-action="MoveStock" class="stack-form" onsubmit="return confirmMoveStock(this)">
                 <input name="kod" placeholder="Termék kódja" required />
                 <select name="tipus">
-                    <option>Bevételezés</option>
-                    <option>Kiadás</option>
+                    <option value="Bevételezés">Bevételezés</option>
+                    <option value="Kiadás">Kiadás</option>
                 </select>
-                <input name="mennyiseg" type="number" placeholder="Mennyiség" required />
+                <input name="mennyiseg" type="number" placeholder="Mennyiség" min="1" required />
                 <input name="megjegyzes" placeholder="Megjegyzés" />
                 <button type="submit">Mentés</button>
             </form>
@@ -101,8 +106,8 @@
                                     <input type="hidden" name="oldKod" value="@item.Kod" />
                                     <input name="nev" value="@item.Nev" required />
                                     <input name="kod" value="@item.Kod" required />
-                                    <input name="mennyiseg" type="number" value="@item.Mennyiseg" required />
-                                    <input name="egysegar" type="number" value="@item.Egysegar" required />
+                                    <input name="mennyiseg" type="number" value="@item.Mennyiseg" min="0" required />
+                                    <input name="egysegar" type="number" value="@item.Egysegar" min="0" required />
                                     <button type="submit">Mentés</button>
                                 </form>
 
@@ -130,9 +135,9 @@
 
             <select name="logTipus">
                 <option value="">Minden művelet</option>
-                <option value="Új termék" selected="@(Model.LogTipus == "Új termék")">Új termék</option>
-                <option value="Bevételezés" selected="@(Model.LogTipus == "Bevételezés")">Bevételezés</option>
-                <option value="Kiadás" selected="@(Model.LogTipus == "Kiadás")">Kiadás</option>
+                <option value="Új termék" @(Model.LogTipus == "Új termék" ? "selected" : "")>Új termék</option>
+                <option value="Bevételezés" @(Model.LogTipus == "Bevételezés" ? "selected" : "")>Bevételezés</option>
+                <option value="Kiadás" @(Model.LogTipus == "Kiadás" ? "selected" : "")>Kiadás</option>
             </select>
 
             <input type="text"
@@ -150,6 +155,15 @@
 
             <button type="submit">Szűrés</button>
             <a asp-action="Index">Törlés</a>
+        </form>
+
+        <form method="get" asp-action="ExportLogsCsv" class="log-filter">
+            <input type="hidden" name="logSearch" value="@Model.LogSearch" />
+            <input type="hidden" name="logTipus" value="@Model.LogTipus" />
+            <input type="hidden" name="logUser" value="@Model.LogUser" />
+            <input type="hidden" name="logDateFrom" value="@Model.LogDateFrom" />
+            <input type="hidden" name="logDateTo" value="@Model.LogDateTo" />
+            <button type="submit">Mozgásnapló export CSV</button>
         </form>
 
         <table>
@@ -191,9 +205,9 @@
                 <input name="username" placeholder="Felhasználónév" required />
                 <input name="password" type="password" placeholder="Jelszó" required />
                 <select name="role">
-                    <option>admin</option>
-                    <option selected>raktaros</option>
-                    <option>vezeto</option>
+                    <option value="admin">admin</option>
+                    <option value="raktaros" selected>raktaros</option>
+                    <option value="vezeto">vezeto</option>
                 </select>
                 <button type="submit">Dolgozó felvétele</button>
             </form>
