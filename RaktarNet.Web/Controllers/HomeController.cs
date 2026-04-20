@@ -14,7 +14,7 @@ public class HomeController : Controller
     {
         _db = db;
     }
-
+    
     private SessionUser? CurrentUser()
     {
         var raw = HttpContext.Session.GetString("user");
@@ -85,7 +85,9 @@ public class HomeController : Controller
                 $"{EscapeCsv(log.Vegrehajto)}");
         }
 
-        var bytes = Encoding.UTF8.GetBytes(sb.ToString());
+        var bytes = Encoding.UTF8.GetPreamble()
+    .Concat(Encoding.UTF8.GetBytes(sb.ToString()))
+    .ToArray();
         var fileName = $"mozgasnaplo_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
 
         return File(bytes, "text/csv; charset=utf-8", fileName);
