@@ -97,7 +97,8 @@ public sealed class DatabaseService
         cmd.Parameters.AddWithValue("$u", username.Trim());
 
         using var r = cmd.ExecuteReader();
-        if (!r.Read()) return null;
+        if (!r.Read())
+            return null;
 
         var active = r.GetInt32(3) == 1;
         var hash = r.GetString(4);
@@ -360,6 +361,50 @@ public sealed class DatabaseService
         }
 
         return list;
+    }
+
+    public int GetTodayLogCount()
+    {
+        using var conn = Open();
+        using var cmd = conn.CreateCommand();
+        cmd.CommandText = """
+            SELECT COUNT(*)
+            FROM mozgasnaplo
+            WHERE substr(datum, 1, 10) = $today
+        """;
+        cmd.Parameters.AddWithValue("$today", DateTime.Now.ToString("yyyy-MM-dd"));
+
+        return Convert.ToInt32(cmd.ExecuteScalar());
+    }
+
+    public int GetTodayLogCountByType(string tipus)
+    {
+        using var conn = Open();
+        using var cmd = conn.CreateCommand();
+        cmd.CommandText = """
+            SELECT COUNT(*)
+            FROM mozgasnaplo
+            WHERE substr(datum, 1, 10) = $today
+              AND tipus = $tipus
+        """;
+        cmd.Parameters.AddWithValue("$today", DateTime.Now.ToString("yyyy-MM-dd"));
+        cmd.Parameters.AddWithValue("$tipus", tipus.Trim());
+
+        return Convert.ToInt32(cmd.ExecuteScalar());
+    }
+
+    public int GetLowStockCount(int threshold = 5)
+    {
+        using var conn = Open();
+        using var cmd = conn.CreateCommand();
+        cmd.CommandText = """
+            SELECT COUNT(*)
+            FROM termekek
+            WHERE mennyiseg <= $threshold
+        """;
+        cmd.Parameters.AddWithValue("$threshold", threshold);
+
+        return Convert.ToInt32(cmd.ExecuteScalar());
     }
 
     public List<UserItem> GetUsers()
