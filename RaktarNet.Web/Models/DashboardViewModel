@@ -4,7 +4,7 @@ namespace RaktarNet.Web.Models
 {
     public class DashboardViewModel
     {
-        public SessionUser CurrentUser { get; set; } = default!;
+        public SessionUser? CurrentUser { get; set; };
 
         public List<Product> Products { get; set; } = new();
         public List<LogEntry> Logs { get; set; } = new();
