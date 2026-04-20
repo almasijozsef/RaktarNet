@@ -70,19 +70,19 @@ public class HomeController : Controller
         var logs = _db.GetLogs(logSearch, logTipus, logUser, logDateFrom, logDateTo);
 
         var sb = new StringBuilder();
-        sb.AppendLine("Dátum;Típus;Termék;Kód;Mennyiség;Készlet utána;Megjegyzés;Végrehajtotta");
+        sb.AppendLine("Dátum\tTípus\tTermék\tKód\tMennyiség\tKészlet utána\tMegjegyzés\tVégrehajtotta");
 
         foreach (var log in logs)
         {
             sb.AppendLine(
-                $"{EscapeCsv(log.Datum)};" +
-                $"{EscapeCsv(log.Tipus)};" +
-                $"{EscapeCsv(log.TermekNev)};" +
-                $"{EscapeCsv(log.TermekKod)};" +
-                $"{log.Mennyiseg};" +
-                $"{log.KeszletUtana};" +
-                $"{EscapeCsv(log.Megjegyzes)};" +
-                $"{EscapeCsv(log.Vegrehajto)}");
+                $"{log.Datum}\t" +
+$"{log.Tipus}\t" +
+$"{log.TermekNev}\t" +
+$"{log.TermekKod}\t" +
+$"{log.Mennyiseg}\t" +
+$"{log.KeszletUtana}\t" +
+$"{log.Megjegyzes}\t" +
+$"{log.Vegrehajto}"
         }
 
         var bytes = Encoding.Unicode.GetPreamble()
