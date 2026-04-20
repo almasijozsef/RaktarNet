@@ -23,7 +23,7 @@
 </div>
 
 <div class="container">
-   @if (Model.CurrentUser != null && (Model.CurrentUser.Role == "vezeto" || Model.CurrentUser.Role == "admin"))
+   @if (Model.CurrentUser != null && Model.CurrentUser.Role == "vezeto" || Model.CurrentUser.Role == "admin")
     {
         <div class="card">
             <h3>Áttekintés</h3>
