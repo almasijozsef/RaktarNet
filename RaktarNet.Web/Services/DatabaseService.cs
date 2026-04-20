@@ -1,4 +1,5 @@
 using Microsoft.Data.Sqlite;
+using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
 using RaktarNet.Web.Models;
@@ -66,11 +67,14 @@ public sealed class DatabaseService
         if (count == 0)
         {
             using var insert = conn.CreateCommand();
-            insert.CommandText = "INSERT INTO dolgozok (felhasznalonev, jelszo_hash, jogosultsag, aktiv, letrehozva) VALUES ($u, $p, $r, 1, $d)";
+            insert.CommandText = """
+                INSERT INTO dolgozok (felhasznalonev, jelszo_hash, jogosultsag, aktiv, letrehozva)
+                VALUES ($u, $p, $r, 1, $d)
+            """;
             insert.Parameters.AddWithValue("$u", "admin");
             insert.Parameters.AddWithValue("$p", HashPassword("admin123"));
             insert.Parameters.AddWithValue("$r", "admin");
-            insert.Parameters.AddWithValue("$d", DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss"));
+            insert.Parameters.AddWithValue("$d", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             insert.ExecuteNonQuery();
         }
     }
@@ -85,7 +89,11 @@ public sealed class DatabaseService
     {
         using var conn = Open();
         using var cmd = conn.CreateCommand();
-        cmd.CommandText = "SELECT id, felhasznalonev, jogosultsag, aktiv, jelszo_hash FROM dolgozok WHERE felhasznalonev = $u";
+        cmd.CommandText = """
+            SELECT id, felhasznalonev, jogosultsag, aktiv, jelszo_hash
+            FROM dolgozok
+            WHERE felhasznalonev = $u
+        """;
         cmd.Parameters.AddWithValue("$u", username.Trim());
 
         using var r = cmd.ExecuteReader();
@@ -93,7 +101,9 @@ public sealed class DatabaseService
 
         var active = r.GetInt32(3) == 1;
         var hash = r.GetString(4);
-        if (!active || hash != HashPassword(password)) return null;
+
+        if (!active || hash != HashPassword(password))
+            return null;
 
         return new SessionUser(r.GetInt32(0), r.GetString(1), r.GetString(2));
     }
@@ -105,11 +115,20 @@ public sealed class DatabaseService
 
         if (string.IsNullOrWhiteSpace(search))
         {
-            cmd.CommandText = "SELECT nev, kod, mennyiseg, egysegar, modositva FROM termekek ORDER BY nev";
+            cmd.CommandText = """
+                SELECT nev, kod, mennyiseg, egysegar, modositva
+                FROM termekek
+                ORDER BY nev
+            """;
         }
         else
         {
-            cmd.CommandText = "SELECT nev, kod, mennyiseg, egysegar, modositva FROM termekek WHERE lower(nev) LIKE lower($s) OR lower(kod) LIKE lower($s) ORDER BY nev";
+            cmd.CommandText = """
+                SELECT nev, kod, mennyiseg, egysegar, modositva
+                FROM termekek
+                WHERE lower(nev) LIKE lower($s) OR lower(kod) LIKE lower($s)
+                ORDER BY nev
+            """;
             cmd.Parameters.AddWithValue("$s", $"%{search.Trim()}%");
         }
 
@@ -126,49 +145,63 @@ public sealed class DatabaseService
                 Modositva = r.GetString(4)
             });
         }
+
         return list;
     }
 
     public void AddProduct(string nev, string kod, int mennyiseg, int egysegar, string vegrehajto)
-{
-    using var conn = Open();
-
-    var now = DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss");
-
-    using var cmd = conn.CreateCommand();
-    cmd.CommandText = "INSERT INTO termekek (nev, kod, mennyiseg, egysegar, modositva) VALUES ($n, $k, $m, $e, $d)";
-    cmd.Parameters.AddWithValue("$n", nev.Trim());
-    cmd.Parameters.AddWithValue("$k", kod.Trim());
-    cmd.Parameters.AddWithValue("$m", mennyiseg);
-    cmd.Parameters.AddWithValue("$e", egysegar);
-    cmd.Parameters.AddWithValue("$d", now);
-    cmd.ExecuteNonQuery();
-
-    using var log = conn.CreateCommand();
-    log.CommandText = "INSERT INTO mozgasnaplo (datum, tipus, termek_nev, termek_kod, mennyiseg, keszlet_utana, megjegyzes, vegrehajto) VALUES ($d, $t, $tn, $tk, $m, $ku, $megj, $v)";
-    log.Parameters.AddWithValue("$d", now);
-    log.Parameters.AddWithValue("$t", "Új termék");
-    log.Parameters.AddWithValue("$tn", nev.Trim());
-    log.Parameters.AddWithValue("$tk", kod.Trim());
-    log.Parameters.AddWithValue("$m", mennyiseg);
-    log.Parameters.AddWithValue("$ku", mennyiseg);
-    log.Parameters.AddWithValue("$megj", "Új termék rögzítése");
-    log.Parameters.AddWithValue("$v", vegrehajto);
-    log.ExecuteNonQuery();
-}
-
-    public void UpdateProduct(string oldCode, string nev, string kod, int mennyiseg, int egysegar)
     {
         using var conn = Open();
+        var now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
         using var cmd = conn.CreateCommand();
-        cmd.CommandText = "UPDATE termekek SET nev=$n, kod=$k, mennyiseg=$m, egysegar=$e, modositva=$d WHERE kod=$old";
+        cmd.CommandText = """
+            INSERT INTO termekek (nev, kod, mennyiseg, egysegar, modositva)
+            VALUES ($n, $k, $m, $e, $d)
+        """;
         cmd.Parameters.AddWithValue("$n", nev.Trim());
         cmd.Parameters.AddWithValue("$k", kod.Trim());
         cmd.Parameters.AddWithValue("$m", mennyiseg);
         cmd.Parameters.AddWithValue("$e", egysegar);
-        cmd.Parameters.AddWithValue("$d", DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss"));
-        cmd.Parameters.AddWithValue("$old", oldCode);
+        cmd.Parameters.AddWithValue("$d", now);
         cmd.ExecuteNonQuery();
+
+        using var log = conn.CreateCommand();
+        log.CommandText = """
+            INSERT INTO mozgasnaplo
+            (datum, tipus, termek_nev, termek_kod, mennyiseg, keszlet_utana, megjegyzes, vegrehajto)
+            VALUES ($d, $t, $tn, $tk, $m, $ku, $megj, $v)
+        """;
+        log.Parameters.AddWithValue("$d", now);
+        log.Parameters.AddWithValue("$t", "Új termék");
+        log.Parameters.AddWithValue("$tn", nev.Trim());
+        log.Parameters.AddWithValue("$tk", kod.Trim());
+        log.Parameters.AddWithValue("$m", mennyiseg);
+        log.Parameters.AddWithValue("$ku", mennyiseg);
+        log.Parameters.AddWithValue("$megj", "Új termék rögzítése");
+        log.Parameters.AddWithValue("$v", vegrehajto ?? "");
+        log.ExecuteNonQuery();
+    }
+
+    public void UpdateProduct(string oldKod, string nev, string kod, int mennyiseg, int egysegar)
+    {
+        using var conn = Open();
+        using var cmd = conn.CreateCommand();
+        cmd.CommandText = """
+            UPDATE termekek
+            SET nev = $n, kod = $k, mennyiseg = $m, egysegar = $e, modositva = $d
+            WHERE kod = $old
+        """;
+        cmd.Parameters.AddWithValue("$n", nev.Trim());
+        cmd.Parameters.AddWithValue("$k", kod.Trim());
+        cmd.Parameters.AddWithValue("$m", mennyiseg);
+        cmd.Parameters.AddWithValue("$e", egysegar);
+        cmd.Parameters.AddWithValue("$d", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+        cmd.Parameters.AddWithValue("$old", oldKod.Trim());
+
+        var affected = cmd.ExecuteNonQuery();
+        if (affected == 0)
+            throw new Exception("A termék nem található.");
     }
 
     public void DeleteProduct(string kod)
@@ -176,128 +209,169 @@ public sealed class DatabaseService
         using var conn = Open();
         using var cmd = conn.CreateCommand();
         cmd.CommandText = "DELETE FROM termekek WHERE kod = $k";
-        cmd.Parameters.AddWithValue("$k", kod);
-        cmd.ExecuteNonQuery();
+        cmd.Parameters.AddWithValue("$k", kod.Trim());
+
+        var affected = cmd.ExecuteNonQuery();
+        if (affected == 0)
+            throw new Exception("A termék nem található.");
     }
 
     public void MoveStock(string kod, string tipus, int mennyiseg, string megjegyzes, string vegrehajto)
     {
+        if (mennyiseg <= 0)
+            throw new Exception("A mennyiségnek nagyobbnak kell lennie 0-nál.");
+
         using var conn = Open();
 
-        using var select = conn.CreateCommand();
-        select.CommandText = "SELECT nev, mennyiseg FROM termekek WHERE kod = $k";
-        select.Parameters.AddWithValue("$k", kod);
-        using var r = select.ExecuteReader();
-        if (!r.Read()) throw new Exception("A termék nem található.");
+        string termekNev;
+        int currentQty;
 
-        var termekNev = r.GetString(0);
-        var currentQty = r.GetInt32(1);
-        r.Close();
+        using (var get = conn.CreateCommand())
+        {
+            get.CommandText = "SELECT nev, mennyiseg FROM termekek WHERE kod = $k";
+            get.Parameters.AddWithValue("$k", kod.Trim());
 
-        var newQty = tipus == "Bevételezés" ? currentQty + mennyiseg : currentQty - mennyiseg;
-        if (tipus == "Kiadás" && newQty < 0)
-            throw new Exception("Nincs elegendő készlet a kiadáshoz.");
+            using var r = get.ExecuteReader();
+            if (!r.Read())
+                throw new Exception("A megadott termékkód nem található.");
 
-        var now = DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss");
+            termekNev = r.GetString(0);
+            currentQty = r.GetInt32(1);
+        }
 
-        using var update = conn.CreateCommand();
-        update.CommandText = "UPDATE termekek SET mennyiseg=$m, modositva=$d WHERE kod=$k";
-        update.Parameters.AddWithValue("$m", newQty);
-        update.Parameters.AddWithValue("$d", now);
-        update.Parameters.AddWithValue("$k", kod);
-        update.ExecuteNonQuery();
+        int newQty;
+        if (tipus == "Bevételezés")
+        {
+            newQty = currentQty + mennyiseg;
+        }
+        else if (tipus == "Kiadás")
+        {
+            if (currentQty < mennyiseg)
+                throw new Exception("Nincs elegendő készlet a kiadáshoz.");
 
-        using var log = conn.CreateCommand();
-        log.CommandText = "INSERT INTO mozgasnaplo (datum, tipus, termek_nev, termek_kod, mennyiseg, keszlet_utana, megjegyzes, vegrehajto) VALUES ($d,$t,$tn,$tk,$m,$ku,$megj,$v)";
-        log.Parameters.AddWithValue("$d", now);
-        log.Parameters.AddWithValue("$t", tipus);
-        log.Parameters.AddWithValue("$tn", termekNev);
-        log.Parameters.AddWithValue("$tk", kod);
-        log.Parameters.AddWithValue("$m", mennyiseg);
-        log.Parameters.AddWithValue("$ku", newQty);
-        log.Parameters.AddWithValue("$megj", megjegyzes ?? "");
-        log.Parameters.AddWithValue("$v", vegrehajto ?? "");
-        log.ExecuteNonQuery();
+            newQty = currentQty - mennyiseg;
+        }
+        else
+        {
+            throw new Exception("Ismeretlen művelettípus.");
+        }
+
+        var now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
+        using (var update = conn.CreateCommand())
+        {
+            update.CommandText = """
+                UPDATE termekek
+                SET mennyiseg = $m, modositva = $d
+                WHERE kod = $k
+            """;
+            update.Parameters.AddWithValue("$m", newQty);
+            update.Parameters.AddWithValue("$d", now);
+            update.Parameters.AddWithValue("$k", kod.Trim());
+            update.ExecuteNonQuery();
+        }
+
+        using (var log = conn.CreateCommand())
+        {
+            log.CommandText = """
+                INSERT INTO mozgasnaplo
+                (datum, tipus, termek_nev, termek_kod, mennyiseg, keszlet_utana, megjegyzes, vegrehajto)
+                VALUES ($d, $t, $tn, $tk, $m, $ku, $megj, $v)
+            """;
+            log.Parameters.AddWithValue("$d", now);
+            log.Parameters.AddWithValue("$t", tipus);
+            log.Parameters.AddWithValue("$tn", termekNev);
+            log.Parameters.AddWithValue("$tk", kod.Trim());
+            log.Parameters.AddWithValue("$m", mennyiseg);
+            log.Parameters.AddWithValue("$ku", newQty);
+            log.Parameters.AddWithValue("$megj", megjegyzes ?? "");
+            log.Parameters.AddWithValue("$v", vegrehajto ?? "");
+            log.ExecuteNonQuery();
+        }
     }
 
     public List<LogEntry> GetLogs(
-    string search = "",
-    string tipus = "",
-    string vegrehajto = "",
-    string datumTol = "",
-    string datumIg = "")
-{
-    using var conn = Open();
-    using var cmd = conn.CreateCommand();
-
-    var whereParts = new List<string>();
-
-    if (!string.IsNullOrWhiteSpace(search))
+        string search = "",
+        string tipus = "",
+        string vegrehajto = "",
+        string datumTol = "",
+        string datumIg = "")
     {
-        whereParts.Add("(lower(termek_nev) LIKE lower($s) OR lower(termek_kod) LIKE lower($s))");
-        cmd.Parameters.AddWithValue("$s", $"%{search.Trim()}%");
-    }
+        using var conn = Open();
+        using var cmd = conn.CreateCommand();
 
-    if (!string.IsNullOrWhiteSpace(tipus))
-    {
-        whereParts.Add("tipus = $tipus");
-        cmd.Parameters.AddWithValue("$tipus", tipus.Trim());
-    }
+        var whereParts = new List<string>();
 
-    if (!string.IsNullOrWhiteSpace(vegrehajto))
-    {
-        whereParts.Add("lower(vegrehajto) LIKE lower($v)");
-        cmd.Parameters.AddWithValue("$v", $"%{vegrehajto.Trim()}%");
-    }
-
-    if (!string.IsNullOrWhiteSpace(datumTol))
-    {
-        whereParts.Add("substr(datum, 1, 10) >= $datumTol");
-        cmd.Parameters.AddWithValue("$datumTol", datumTol.Trim());
-    }
-
-    if (!string.IsNullOrWhiteSpace(datumIg))
-    {
-        whereParts.Add("substr(datum, 1, 10) <= $datumIg");
-        cmd.Parameters.AddWithValue("$datumIg", datumIg.Trim());
-    }
-
-    var whereSql = whereParts.Count > 0
-        ? " WHERE " + string.Join(" AND ", whereParts)
-        : "";
-
-    cmd.CommandText = $@"
-        SELECT datum, tipus, termek_nev, termek_kod, mennyiseg, keszlet_utana, megjegyzes, vegrehajto
-        FROM mozgasnaplo
-        {whereSql}
-        ORDER BY id DESC";
-
-    var list = new List<LogEntry>();
-    using var r = cmd.ExecuteReader();
-    while (r.Read())
-    {
-        list.Add(new LogEntry
+        if (!string.IsNullOrWhiteSpace(search))
         {
-            Datum = r.GetString(0),
-            Tipus = r.GetString(1),
-            TermekNev = r.GetString(2),
-            TermekKod = r.GetString(3),
-            Mennyiseg = r.GetInt32(4),
-            KeszletUtana = r.GetInt32(5),
-            Megjegyzes = r.GetString(6),
-            Vegrehajto = r.GetString(7)
-        });
-    }
+            whereParts.Add("(lower(termek_nev) LIKE lower($s) OR lower(termek_kod) LIKE lower($s))");
+            cmd.Parameters.AddWithValue("$s", $"%{search.Trim()}%");
+        }
 
-    return list;
-}
+        if (!string.IsNullOrWhiteSpace(tipus))
+        {
+            whereParts.Add("tipus = $tipus");
+            cmd.Parameters.AddWithValue("$tipus", tipus.Trim());
+        }
+
+        if (!string.IsNullOrWhiteSpace(vegrehajto))
+        {
+            whereParts.Add("lower(vegrehajto) LIKE lower($v)");
+            cmd.Parameters.AddWithValue("$v", $"%{vegrehajto.Trim()}%");
+        }
+
+        if (!string.IsNullOrWhiteSpace(datumTol))
+        {
+            whereParts.Add("substr(datum, 1, 10) >= $datumTol");
+            cmd.Parameters.AddWithValue("$datumTol", datumTol.Trim());
+        }
+
+        if (!string.IsNullOrWhiteSpace(datumIg))
+        {
+            whereParts.Add("substr(datum, 1, 10) <= $datumIg");
+            cmd.Parameters.AddWithValue("$datumIg", datumIg.Trim());
+        }
+
+        var whereSql = whereParts.Count > 0
+            ? " WHERE " + string.Join(" AND ", whereParts)
+            : "";
+
+        cmd.CommandText = $@"
+            SELECT datum, tipus, termek_nev, termek_kod, mennyiseg, keszlet_utana, megjegyzes, vegrehajto
+            FROM mozgasnaplo
+            {whereSql}
+            ORDER BY id DESC";
+
+        var list = new List<LogEntry>();
+        using var r = cmd.ExecuteReader();
+        while (r.Read())
+        {
+            list.Add(new LogEntry
+            {
+                Datum = r.GetString(0),
+                Tipus = r.GetString(1),
+                TermekNev = r.GetString(2),
+                TermekKod = r.GetString(3),
+                Mennyiseg = r.GetInt32(4),
+                KeszletUtana = r.GetInt32(5),
+                Megjegyzes = r.IsDBNull(6) ? "" : r.GetString(6),
+                Vegrehajto = r.GetString(7)
+            });
+        }
+
+        return list;
     }
 
     public List<UserItem> GetUsers()
     {
         using var conn = Open();
         using var cmd = conn.CreateCommand();
-        cmd.CommandText = "SELECT id, felhasznalonev, jogosultsag, aktiv, letrehozva FROM dolgozok ORDER BY felhasznalonev";
+        cmd.CommandText = """
+            SELECT id, felhasznalonev, jogosultsag, aktiv, letrehozva
+            FROM dolgozok
+            ORDER BY felhasznalonev
+        """;
+
         var list = new List<UserItem>();
         using var r = cmd.ExecuteReader();
         while (r.Read())
@@ -311,6 +385,7 @@ public sealed class DatabaseService
                 Letrehozva = r.GetString(4)
             });
         }
+
         return list;
     }
 
@@ -318,17 +393,21 @@ public sealed class DatabaseService
     {
         using var conn = Open();
         using var cmd = conn.CreateCommand();
-        cmd.CommandText = "INSERT INTO dolgozok (felhasznalonev, jelszo_hash, jogosultsag, aktiv, letrehozva) VALUES ($u,$p,$r,1,$d)";
+        cmd.CommandText = """
+            INSERT INTO dolgozok (felhasznalonev, jelszo_hash, jogosultsag, aktiv, letrehozva)
+            VALUES ($u, $p, $r, 1, $d)
+        """;
         cmd.Parameters.AddWithValue("$u", username.Trim());
         cmd.Parameters.AddWithValue("$p", HashPassword(password));
         cmd.Parameters.AddWithValue("$r", role.Trim());
-        cmd.Parameters.AddWithValue("$d", DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss"));
+        cmd.Parameters.AddWithValue("$d", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
         cmd.ExecuteNonQuery();
     }
 
     public void DeleteUser(int id)
     {
         using var conn = Open();
+
         using var check = conn.CreateCommand();
         check.CommandText = "SELECT felhasznalonev FROM dolgozok WHERE id = $id";
         check.Parameters.AddWithValue("$id", id);
@@ -340,6 +419,9 @@ public sealed class DatabaseService
         using var cmd = conn.CreateCommand();
         cmd.CommandText = "DELETE FROM dolgozok WHERE id = $id";
         cmd.Parameters.AddWithValue("$id", id);
-        cmd.ExecuteNonQuery();
+
+        var affected = cmd.ExecuteNonQuery();
+        if (affected == 0)
+            throw new Exception("A felhasználó nem található.");
     }
 }
