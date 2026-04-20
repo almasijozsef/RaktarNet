@@ -85,10 +85,13 @@ public class HomeController : Controller
                 $"{EscapeCsv(log.Vegrehajto)}");
         }
 
-        var bytes = Encoding.UTF8.GetPreamble()
-    .Concat(Encoding.UTF8.GetBytes(sb.ToString()))
+        var bytes = Encoding.Unicode.GetPreamble()
+    .Concat(Encoding.Unicode.GetBytes(sb.ToString()))
     .ToArray();
-        var fileName = $"mozgasnaplo_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+
+var fileName = $"mozgasnaplo_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+
+return File(bytes, "text/csv; charset=utf-16", fileName);
 
         return File(bytes, "text/csv; charset=utf-8", fileName);
     }
