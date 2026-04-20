@@ -53,63 +53,8 @@ public class HomeController : Controller
         };
 
         return View(vm);
-    }
-
-    [HttpGet]
-    public IActionResult ExportLogsCsv(
-        string logSearch = "",
-        string logTipus = "",
-        string logUser = "",
-        string logDateFrom = "",
-        string logDateTo = "")
-    {
-        var user = CurrentUser();
-        if (user is null)
-            return RedirectToAction("Login", "Account");
-
-        var logs = _db.GetLogs(logSearch, logTipus, logUser, logDateFrom, logDateTo);
-
-        var sb = new StringBuilder();
-        sb.AppendLine("Dátum\tTípus\tTermék\tKód\tMennyiség\tKészlet utána\tMegjegyzés\tVégrehajtotta");
-
-        foreach (var log in logs)
-        {
-            sb.AppendLine(
-                $"{log.Datum}\t" +
-$"{log.Tipus}\t" +
-$"{log.TermekNev}\t" +
-$"{log.TermekKod}\t" +
-$"{log.Mennyiseg}\t" +
-$"{log.KeszletUtana}\t" +
-$"{log.Megjegyzes}\t" +
-$"{log.Vegrehajto}"
-        }
-
-        var bytes = Encoding.Unicode.GetPreamble()
-    .Concat(Encoding.Unicode.GetBytes(sb.ToString()))
-    .ToArray();
-
-var fileName = $"mozgasnaplo_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
-
-return File(bytes, "text/csv; charset=utf-16", fileName);
-
-        return File(bytes, "text/csv; charset=utf-8", fileName);
-    }
-
-    private static string EscapeCsv(string? value)
-    {
-        if (string.IsNullOrEmpty(value))
-            return "";
-
-        value = value.Replace("\"", "\"\"");
-
-        if (value.Contains(';') || value.Contains('"') || value.Contains('\n'))
-            return $"\"{value}\"";
-
-        return value;
-    }
-
-    [HttpPost]
+    
+        [HttpPost]
     public IActionResult UpdateProduct(string oldKod, string nev, string kod, int mennyiseg, int egysegar)
     {
         var user = CurrentUser();
