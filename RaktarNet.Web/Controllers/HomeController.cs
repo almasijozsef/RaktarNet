@@ -20,23 +20,34 @@ public class HomeController : Controller
         return raw is null ? null : JsonSerializer.Deserialize<SessionUser>(raw);
     }
 
-    public IActionResult Index(string search = "")
+public IActionResult Index(
+    string search = "",
+    string logSearch = "",
+    string logTipus = "",
+    string logUser = "",
+    string logDateFrom = "",
+    string logDateTo = "")
+{
+    var user = CurrentUser();
+    if (user is null)
+        return RedirectToAction("Login", "Account");
+
+    var vm = new DashboardViewModel
     {
-        var user = CurrentUser();
-        if (user is null)
-            return RedirectToAction("Login", "Account");
+        CurrentUser = user,
+        Products = _db.GetProducts(search),
+        Logs = _db.GetLogs(logSearch, logTipus, logUser, logDateFrom, logDateTo),
+        Users = user.Role == "admin" ? _db.GetUsers() : new List<UserItem>(),
+        Search = search,
+        LogSearch = logSearch,
+        LogTipus = logTipus,
+        LogUser = logUser,
+        LogDateFrom = logDateFrom,
+        LogDateTo = logDateTo
+    };
 
-        var vm = new DashboardViewModel
-        {
-            CurrentUser = user,
-            Products = _db.GetProducts(search),
-            Logs = _db.GetLogs(),
-            Users = user.Role == "admin" ? _db.GetUsers() : new List<UserItem>(),
-            Search = search
-        };
-
-        return View(vm);
-    }
+    return View(vm);
+}
 [HttpPost]
 public IActionResult UpdateProduct(string oldKod, string nev, string kod, int mennyiseg, int egysegar)
 {
