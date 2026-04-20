@@ -220,29 +220,77 @@ public sealed class DatabaseService
         log.ExecuteNonQuery();
     }
 
-    public List<LogEntry> GetLogs()
-    {
-        using var conn = Open();
-        using var cmd = conn.CreateCommand();
-        cmd.CommandText = "SELECT datum, tipus, termek_nev, termek_kod, mennyiseg, keszlet_utana, megjegyzes, vegrehajto FROM mozgasnaplo ORDER BY id DESC";
+    public List<LogEntry> GetLogs(
+    string search = "",
+    string tipus = "",
+    string vegrehajto = "",
+    string datumTol = "",
+    string datumIg = "")
+{
+    using var conn = Open();
+    using var cmd = conn.CreateCommand();
 
-        var list = new List<LogEntry>();
-        using var r = cmd.ExecuteReader();
-        while (r.Read())
+    var whereParts = new List<string>();
+
+    if (!string.IsNullOrWhiteSpace(search))
+    {
+        whereParts.Add("(lower(termek_nev) LIKE lower($s) OR lower(termek_kod) LIKE lower($s))");
+        cmd.Parameters.AddWithValue("$s", $"%{search.Trim()}%");
+    }
+
+    if (!string.IsNullOrWhiteSpace(tipus))
+    {
+        whereParts.Add("tipus = $tipus");
+        cmd.Parameters.AddWithValue("$tipus", tipus.Trim());
+    }
+
+    if (!string.IsNullOrWhiteSpace(vegrehajto))
+    {
+        whereParts.Add("lower(vegrehajto) LIKE lower($v)");
+        cmd.Parameters.AddWithValue("$v", $"%{vegrehajto.Trim()}%");
+    }
+
+    if (!string.IsNullOrWhiteSpace(datumTol))
+    {
+        whereParts.Add("substr(datum, 1, 10) >= $datumTol");
+        cmd.Parameters.AddWithValue("$datumTol", datumTol.Trim());
+    }
+
+    if (!string.IsNullOrWhiteSpace(datumIg))
+    {
+        whereParts.Add("substr(datum, 1, 10) <= $datumIg");
+        cmd.Parameters.AddWithValue("$datumIg", datumIg.Trim());
+    }
+
+    var whereSql = whereParts.Count > 0
+        ? " WHERE " + string.Join(" AND ", whereParts)
+        : "";
+
+    cmd.CommandText = $@"
+        SELECT datum, tipus, termek_nev, termek_kod, mennyiseg, keszlet_utana, megjegyzes, vegrehajto
+        FROM mozgasnaplo
+        {whereSql}
+        ORDER BY id DESC";
+
+    var list = new List<LogEntry>();
+    using var r = cmd.ExecuteReader();
+    while (r.Read())
+    {
+        list.Add(new LogEntry
         {
-            list.Add(new LogEntry
-            {
-                Datum = r.GetString(0),
-                Tipus = r.GetString(1),
-                TermekNev = r.GetString(2),
-                TermekKod = r.GetString(3),
-                Mennyiseg = r.GetInt32(4),
-                KeszletUtana = r.GetInt32(5),
-                Megjegyzes = r.GetString(6),
-                Vegrehajto = r.GetString(7)
-            });
-        }
-        return list;
+            Datum = r.GetString(0),
+            Tipus = r.GetString(1),
+            TermekNev = r.GetString(2),
+            TermekKod = r.GetString(3),
+            Mennyiseg = r.GetInt32(4),
+            KeszletUtana = r.GetInt32(5),
+            Megjegyzes = r.GetString(6),
+            Vegrehajto = r.GetString(7)
+        });
+    }
+
+    return list;
+}
     }
 
     public List<UserItem> GetUsers()
