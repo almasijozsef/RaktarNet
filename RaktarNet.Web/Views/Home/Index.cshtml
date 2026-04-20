@@ -181,13 +181,6 @@
             <a asp-action="Index">Törlés</a>
         </form>
 
-        <form method="get" asp-action="ExportLogsCsv" class="log-filter">
-            <input type="hidden" name="logSearch" value="@Model.LogSearch" />
-            <input type="hidden" name="logTipus" value="@Model.LogTipus" />
-            <input type="hidden" name="logUser" value="@Model.LogUser" />
-            <input type="hidden" name="logDateFrom" value="@Model.LogDateFrom" />
-            <input type="hidden" name="logDateTo" value="@Model.LogDateTo" />
-            <button type="submit">Mozgásnapló export CSV</button>
         </form>
 
         <table>
