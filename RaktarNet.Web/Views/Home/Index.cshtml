@@ -1,4 +1,19 @@
 @model DashboardViewModel
+
+@if (TempData["Success"] != null)
+{
+    <script>
+        alert('@Html.Raw(TempData["Success"])');
+    </script>
+}
+
+@if (TempData["Error"] != null)
+{
+    <script>
+        alert('@Html.Raw(TempData["Error"])');
+    </script>
+}
+
 <div class="topbar">
     <div>
         <strong>RaktarNet</strong>
@@ -8,11 +23,6 @@
 </div>
 
 <div class="container">
-    @if (TempData["Error"] is string err && !string.IsNullOrWhiteSpace(err))
-    {
-        <div class="error-box">@err</div>
-    }
-
     @if (Model.CurrentUser?.Role == "vezeto")
     {
         <div class="card">
@@ -35,7 +45,7 @@
             </form>
 
             <h3>Új termék</h3>
-            <form method="post" asp-action="AddProduct" class="stack-form">
+            <form method="post" asp-action="AddProduct" class="stack-form" onsubmit="return confirmAddProduct(this)">
                 <input name="nev" placeholder="Termék neve" required />
                 <input name="kod" placeholder="Kód" required />
                 <input name="mennyiseg" type="number" placeholder="Mennyiség" required />
@@ -46,7 +56,7 @@
 
         <div class="card">
             <h3>Bevételezés / Kiadás</h3>
-            <form method="post" asp-action="MoveStock" class="stack-form">
+            <form method="post" asp-action="MoveStock" class="stack-form" onsubmit="return confirmMoveStock(this)">
                 <input name="kod" placeholder="Termék kódja" required />
                 <select name="tipus">
                     <option>Bevételezés</option>
@@ -82,27 +92,27 @@
                     <td>@item.Egysegar Ft</td>
                     <td>@item.Modositva</td>
                     <td>
-    @if (Model.CurrentUser?.Role == "vezeto" || Model.CurrentUser?.Role == "admin")
-    {
-        <details>
-            <summary>Módosítás</summary>
+                        @if (Model.CurrentUser?.Role == "vezeto" || Model.CurrentUser?.Role == "admin")
+                        {
+                            <details>
+                                <summary>Módosítás</summary>
 
-            <form method="post" asp-action="UpdateProduct" class="mini-form">
-                <input type="hidden" name="oldKod" value="@item.Kod" />
-                <input name="nev" value="@item.Nev" required />
-                <input name="kod" value="@item.Kod" required />
-                <input name="mennyiseg" type="number" value="@item.Mennyiseg" required />
-                <input name="egysegar" type="number" value="@item.Egysegar" required />
-                <button type="submit">Mentés</button>
-            </form>
+                                <form method="post" asp-action="UpdateProduct" class="mini-form" onsubmit="return confirm('Biztosan menteni szeretnéd a módosításokat?');">
+                                    <input type="hidden" name="oldKod" value="@item.Kod" />
+                                    <input name="nev" value="@item.Nev" required />
+                                    <input name="kod" value="@item.Kod" required />
+                                    <input name="mennyiseg" type="number" value="@item.Mennyiseg" required />
+                                    <input name="egysegar" type="number" value="@item.Egysegar" required />
+                                    <button type="submit">Mentés</button>
+                                </form>
 
-            <form method="post" asp-action="DeleteProduct" onsubmit="return confirm('Biztosan törlöd?');">
-                <input type="hidden" name="kod" value="@item.Kod" />
-                <button type="submit" class="danger">Törlés</button>
-            </form>
-        </details>
-    }
-</td>
+                                <form method="post" asp-action="DeleteProduct" onsubmit="return confirm('Biztosan törlöd?');">
+                                    <input type="hidden" name="kod" value="@item.Kod" />
+                                    <button type="submit" class="danger">Törlés</button>
+                                </form>
+                            </details>
+                        }
+                    </td>
                 </tr>
             }
             </tbody>
@@ -111,6 +121,37 @@
 
     <div class="card">
         <h3>Mozgásnapló</h3>
+
+        <form method="get" asp-action="Index" class="log-filter">
+            <input type="text"
+                   name="logSearch"
+                   value="@Model.LogSearch"
+                   placeholder="Terméknév vagy kód" />
+
+            <select name="logTipus">
+                <option value="">Minden művelet</option>
+                <option value="Új termék" selected="@(Model.LogTipus == "Új termék")">Új termék</option>
+                <option value="Bevételezés" selected="@(Model.LogTipus == "Bevételezés")">Bevételezés</option>
+                <option value="Kiadás" selected="@(Model.LogTipus == "Kiadás")">Kiadás</option>
+            </select>
+
+            <input type="text"
+                   name="logUser"
+                   value="@Model.LogUser"
+                   placeholder="Végrehajtó" />
+
+            <input type="date"
+                   name="logDateFrom"
+                   value="@Model.LogDateFrom" />
+
+            <input type="date"
+                   name="logDateTo"
+                   value="@Model.LogDateTo" />
+
+            <button type="submit">Szűrés</button>
+            <a asp-action="Index">Törlés</a>
+        </form>
+
         <table>
             <thead>
                 <tr>
@@ -146,7 +187,7 @@
     {
         <div class="card">
             <h3>Dolgozók kezelése</h3>
-            <form method="post" asp-action="AddUser" class="inline-form">
+            <form method="post" asp-action="AddUser" class="inline-form" onsubmit="return confirm('Biztosan létrehozod az új dolgozót?');">
                 <input name="username" placeholder="Felhasználónév" required />
                 <input name="password" type="password" placeholder="Jelszó" required />
                 <select name="role">
@@ -190,3 +231,37 @@
         </div>
     }
 </div>
+
+<script>
+    function confirmMoveStock(form) {
+        const kod = form.kod.value;
+        const tipus = form.tipus.value;
+        const mennyiseg = form.mennyiseg.value;
+        const megjegyzes = form.megjegyzes ? form.megjegyzes.value : "";
+
+        const uzenet =
+            "Biztosan menteni szeretnéd az alábbi műveletet?\n\n" +
+            "Termékkód: " + kod + "\n" +
+            "Művelet típusa: " + tipus + "\n" +
+            "Mennyiség: " + mennyiseg + "\n" +
+            "Megjegyzés: " + (megjegyzes ? megjegyzes : "-");
+
+        return confirm(uzenet);
+    }
+
+    function confirmAddProduct(form) {
+        const nev = form.nev.value;
+        const kod = form.kod.value;
+        const mennyiseg = form.mennyiseg.value;
+        const egysegar = form.egysegar.value;
+
+        const uzenet =
+            "Biztosan menteni szeretnéd az alábbi új terméket?\n\n" +
+            "Név: " + nev + "\n" +
+            "Kód: " + kod + "\n" +
+            "Mennyiség: " + mennyiseg + "\n" +
+            "Egységár: " + egysegar;
+
+        return confirm(uzenet);
+    }
+</script>
