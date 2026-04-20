@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using RaktarNet.Web.Models;
 using RaktarNet.Web.Services;
-using System.Text;
 using System.Text.Json;
 
 namespace RaktarNet.Web.Controllers;
@@ -14,7 +13,7 @@ public class HomeController : Controller
     {
         _db = db;
     }
-    
+
     private SessionUser? CurrentUser()
     {
         var raw = HttpContext.Session.GetString("user");
@@ -45,7 +44,6 @@ public class HomeController : Controller
             LogUser = logUser,
             LogDateFrom = logDateFrom,
             LogDateTo = logDateTo,
-
             MaiMozgasokSzama = _db.GetTodayLogCount(),
             MaiBevetelezesekSzama = _db.GetTodayLogCountByType("Bevételezés"),
             MaiKiadasokSzama = _db.GetTodayLogCountByType("Kiadás"),
@@ -53,8 +51,9 @@ public class HomeController : Controller
         };
 
         return View(vm);
-    
-        [HttpPost]
+    }
+
+    [HttpPost]
     public IActionResult UpdateProduct(string oldKod, string nev, string kod, int mennyiseg, int egysegar)
     {
         var user = CurrentUser();
