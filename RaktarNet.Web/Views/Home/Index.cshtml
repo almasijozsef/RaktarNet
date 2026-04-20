@@ -23,7 +23,7 @@
 </div>
 
 <div class="container">
-   @if (Model.CurrentUser != null && (Model.CurrentUser.Role == "vezeto" || Model.CurrentUser.Role == "admin"))
+    @if (Model.CurrentUser != null && (Model.CurrentUser.Role == "vezeto" || Model.CurrentUser.Role == "admin"))
     {
         <div class="card">
             <h3>Áttekintés</h3>
@@ -88,38 +88,38 @@
                 </tr>
             </thead>
             <tbody>
-            @foreach (var item in Model.Products)
-            {
-                <tr>
-                    <td>@item.Nev</td>
-                    <td>@item.Kod</td>
-                    <td>@item.Mennyiseg</td>
-                    <td>@item.Egysegar Ft</td>
-                    <td>@item.Modositva</td>
-                    <td>
-                       @if (Model.CurrentUser != null && (Model.CurrentUser.Role == "vezeto" || Model.CurrentUser.Role == "admin"))
-                        {
-                            <details>
-                                <summary>Módosítás</summary>
+                @foreach (var item in Model.Products)
+                {
+                    <tr>
+                        <td>@item.Nev</td>
+                        <td>@item.Kod</td>
+                        <td>@item.Mennyiseg</td>
+                        <td>@item.Egysegar Ft</td>
+                        <td>@item.Modositva</td>
+                        <td>
+                            @if (Model.CurrentUser != null && (Model.CurrentUser.Role == "vezeto" || Model.CurrentUser.Role == "admin"))
+                            {
+                                <details>
+                                    <summary>Módosítás</summary>
 
-                                <form method="post" asp-action="UpdateProduct" class="mini-form" onsubmit="return confirm('Biztosan menteni szeretnéd a módosításokat?');">
-                                    <input type="hidden" name="oldKod" value="@item.Kod" />
-                                    <input name="nev" value="@item.Nev" required />
-                                    <input name="kod" value="@item.Kod" required />
-                                    <input name="mennyiseg" type="number" value="@item.Mennyiseg" min="0" required />
-                                    <input name="egysegar" type="number" value="@item.Egysegar" min="0" required />
-                                    <button type="submit">Mentés</button>
-                                </form>
+                                    <form method="post" asp-action="UpdateProduct" class="mini-form" onsubmit="return confirm('Biztosan menteni szeretnéd a módosításokat?');">
+                                        <input type="hidden" name="oldKod" value="@item.Kod" />
+                                        <input name="nev" value="@item.Nev" required />
+                                        <input name="kod" value="@item.Kod" required />
+                                        <input name="mennyiseg" type="number" value="@item.Mennyiseg" min="0" required />
+                                        <input name="egysegar" type="number" value="@item.Egysegar" min="0" required />
+                                        <button type="submit">Mentés</button>
+                                    </form>
 
-                                <form method="post" asp-action="DeleteProduct" onsubmit="return confirm('Biztosan törlöd?');">
-                                    <input type="hidden" name="kod" value="@item.Kod" />
-                                    <button type="submit" class="danger">Törlés</button>
-                                </form>
-                            </details>
-                        }
-                    </td>
-                </tr>
-            }
+                                    <form method="post" asp-action="DeleteProduct" onsubmit="return confirm('Biztosan törlöd?');">
+                                        <input type="hidden" name="kod" value="@item.Kod" />
+                                        <button type="submit" class="danger">Törlés</button>
+                                    </form>
+                                </details>
+                            }
+                        </td>
+                    </tr>
+                }
             </tbody>
         </table>
     </div>
@@ -134,35 +134,35 @@
                    placeholder="Terméknév vagy kód" />
 
             <select name="logTipus">
-    @if (Model.LogTipus == "Új termék")
-    {
-        <option value="">Minden művelet</option>
-        <option value="Új termék" selected>Új termék</option>
-        <option value="Bevételezés">Bevételezés</option>
-        <option value="Kiadás">Kiadás</option>
-    }
-    else if (Model.LogTipus == "Bevételezés")
-    {
-        <option value="">Minden művelet</option>
-        <option value="Új termék">Új termék</option>
-        <option value="Bevételezés" selected>Bevételezés</option>
-        <option value="Kiadás">Kiadás</option>
-    }
-    else if (Model.LogTipus == "Kiadás")
-    {
-        <option value="">Minden művelet</option>
-        <option value="Új termék">Új termék</option>
-        <option value="Bevételezés">Bevételezés</option>
-        <option value="Kiadás" selected>Kiadás</option>
-    }
-    else
-    {
-        <option value="" selected>Minden művelet</option>
-        <option value="Új termék">Új termék</option>
-        <option value="Bevételezés">Bevételezés</option>
-        <option value="Kiadás">Kiadás</option>
-    }
-</select>
+                @if (Model.LogTipus == "Új termék")
+                {
+                    <option value="">Minden művelet</option>
+                    <option value="Új termék" selected>Új termék</option>
+                    <option value="Bevételezés">Bevételezés</option>
+                    <option value="Kiadás">Kiadás</option>
+                }
+                else if (Model.LogTipus == "Bevételezés")
+                {
+                    <option value="">Minden művelet</option>
+                    <option value="Új termék">Új termék</option>
+                    <option value="Bevételezés" selected>Bevételezés</option>
+                    <option value="Kiadás">Kiadás</option>
+                }
+                else if (Model.LogTipus == "Kiadás")
+                {
+                    <option value="">Minden művelet</option>
+                    <option value="Új termék">Új termék</option>
+                    <option value="Bevételezés">Bevételezés</option>
+                    <option value="Kiadás" selected>Kiadás</option>
+                }
+                else
+                {
+                    <option value="" selected>Minden művelet</option>
+                    <option value="Új termék">Új termék</option>
+                    <option value="Bevételezés">Bevételezés</option>
+                    <option value="Kiadás">Kiadás</option>
+                }
+            </select>
 
             <input type="text"
                    name="logUser"
@@ -180,6 +180,7 @@
             <button type="submit">Szűrés</button>
             <a asp-action="Index">Törlés</a>
         </form>
+
         <table>
             <thead>
                 <tr>
@@ -194,24 +195,24 @@
                 </tr>
             </thead>
             <tbody>
-            @foreach (var log in Model.Logs)
-            {
-                <tr>
-                    <td>@log.Datum</td>
-                    <td>@log.Tipus</td>
-                    <td>@log.TermekNev</td>
-                    <td>@log.TermekKod</td>
-                    <td>@log.Mennyiseg</td>
-                    <td>@log.KeszletUtana</td>
-                    <td>@log.Megjegyzes</td>
-                    <td>@log.Vegrehajto</td>
-                </tr>
-            }
+                @foreach (var log in Model.Logs)
+                {
+                    <tr>
+                        <td>@log.Datum</td>
+                        <td>@log.Tipus</td>
+                        <td>@log.TermekNev</td>
+                        <td>@log.TermekKod</td>
+                        <td>@log.Mennyiseg</td>
+                        <td>@log.KeszletUtana</td>
+                        <td>@log.Megjegyzes</td>
+                        <td>@log.Vegrehajto</td>
+                    </tr>
+                }
             </tbody>
         </table>
     </div>
 
-    @if (Model.CurrentUser?.Role == "admin")
+    @if (Model.CurrentUser != null && Model.CurrentUser.Role == "admin")
     {
         <div class="card">
             <h3>Dolgozók kezelése</h3>
@@ -238,22 +239,22 @@
                     </tr>
                 </thead>
                 <tbody>
-                @foreach (var u in Model.Users)
-                {
-                    <tr>
-                        <td>@u.Id</td>
-                        <td>@u.Username</td>
-                        <td>@u.Role</td>
-                        <td>@(u.Aktiv == 1 ? "Igen" : "Nem")</td>
-                        <td>@u.Letrehozva</td>
-                        <td>
-                            <form method="post" asp-action="DeleteUser" onsubmit="return confirm('Biztosan törlöd?');">
-                                <input type="hidden" name="id" value="@u.Id" />
-                                <button type="submit" class="danger">Törlés</button>
-                            </form>
-                        </td>
-                    </tr>
-                }
+                    @foreach (var u in Model.Users)
+                    {
+                        <tr>
+                            <td>@u.Id</td>
+                            <td>@u.Username</td>
+                            <td>@u.Role</td>
+                            <td>@(u.Aktiv == 1 ? "Igen" : "Nem")</td>
+                            <td>@u.Letrehozva</td>
+                            <td>
+                                <form method="post" asp-action="DeleteUser" onsubmit="return confirm('Biztosan törlöd?');">
+                                    <input type="hidden" name="id" value="@u.Id" />
+                                    <button type="submit" class="danger">Törlés</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
                 </tbody>
             </table>
         </div>
