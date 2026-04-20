@@ -1,16 +1,23 @@
 @model DashboardViewModel
 
+@{
+    var isAdmin = Model.CurrentUser != null && Model.CurrentUser.Role == "admin";
+    var isVezeto = Model.CurrentUser != null && Model.CurrentUser.Role == "vezeto";
+    var canManageProducts = isAdmin || isVezeto;
+    var selectedTipus = Model.LogTipus ?? "";
+}
+
 @if (TempData["Success"] != null)
 {
     <script>
-        alert('@Html.Raw(TempData["Success"])');
+        alert(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["Success"]!.ToString())));
     </script>
 }
 
 @if (TempData["Error"] != null)
 {
     <script>
-        alert('@Html.Raw(TempData["Error"])');
+        alert(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["Error"]!.ToString())));
     </script>
 }
 
@@ -23,7 +30,7 @@
 </div>
 
 <div class="container">
-    @if (Model.CurrentUser != null && (Model.CurrentUser.Role == "vezeto" || Model.CurrentUser.Role == "admin"))
+    @if (canManageProducts)
     {
         <div class="card">
             <h3>Áttekintés</h3>
@@ -97,7 +104,7 @@
                         <td>@item.Egysegar Ft</td>
                         <td>@item.Modositva</td>
                         <td>
-                            @if (Model.CurrentUser != null && (Model.CurrentUser.Role == "vezeto" || Model.CurrentUser.Role == "admin"))
+                            @if (canManageProducts)
                             {
                                 <details>
                                     <summary>Módosítás</summary>
@@ -134,21 +141,21 @@
                    placeholder="Terméknév vagy kód" />
 
             <select name="logTipus">
-                @if (Model.LogTipus == "Új termék")
+                @if (selectedTipus == "Új termék")
                 {
                     <option value="">Minden művelet</option>
                     <option value="Új termék" selected>Új termék</option>
                     <option value="Bevételezés">Bevételezés</option>
                     <option value="Kiadás">Kiadás</option>
                 }
-                else if (Model.LogTipus == "Bevételezés")
+                else if (selectedTipus == "Bevételezés")
                 {
                     <option value="">Minden művelet</option>
                     <option value="Új termék">Új termék</option>
                     <option value="Bevételezés" selected>Bevételezés</option>
                     <option value="Kiadás">Kiadás</option>
                 }
-                else if (Model.LogTipus == "Kiadás")
+                else if (selectedTipus == "Kiadás")
                 {
                     <option value="">Minden művelet</option>
                     <option value="Új termék">Új termék</option>
@@ -212,7 +219,7 @@
         </table>
     </div>
 
-    @if (Model.CurrentUser != null && Model.CurrentUser.Role == "admin")
+    @if (isAdmin)
     {
         <div class="card">
             <h3>Dolgozók kezelése</h3>
