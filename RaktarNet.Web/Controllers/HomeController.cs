@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using RaktarNet.Web.Models;
 using RaktarNet.Web.Services;
+using System.Text;
 using System.Text.Json;
 
 namespace RaktarNet.Web.Controllers;
@@ -43,10 +44,64 @@ public class HomeController : Controller
             LogTipus = logTipus,
             LogUser = logUser,
             LogDateFrom = logDateFrom,
-            LogDateTo = logDateTo
+            LogDateTo = logDateTo,
+
+            MaiMozgasokSzama = _db.GetTodayLogCount(),
+            MaiBevetelezesekSzama = _db.GetTodayLogCountByType("Bevételezés"),
+            MaiKiadasokSzama = _db.GetTodayLogCountByType("Kiadás"),
+            AlacsonyKeszletuTermekekSzama = _db.GetLowStockCount()
         };
 
         return View(vm);
+    }
+
+    [HttpGet]
+    public IActionResult ExportLogsCsv(
+        string logSearch = "",
+        string logTipus = "",
+        string logUser = "",
+        string logDateFrom = "",
+        string logDateTo = "")
+    {
+        var user = CurrentUser();
+        if (user is null)
+            return RedirectToAction("Login", "Account");
+
+        var logs = _db.GetLogs(logSearch, logTipus, logUser, logDateFrom, logDateTo);
+
+        var sb = new StringBuilder();
+        sb.AppendLine("Dátum;Típus;Termék;Kód;Mennyiség;Készlet utána;Megjegyzés;Végrehajtotta");
+
+        foreach (var log in logs)
+        {
+            sb.AppendLine(
+                $"{EscapeCsv(log.Datum)};" +
+                $"{EscapeCsv(log.Tipus)};" +
+                $"{EscapeCsv(log.TermekNev)};" +
+                $"{EscapeCsv(log.TermekKod)};" +
+                $"{log.Mennyiseg};" +
+                $"{log.KeszletUtana};" +
+                $"{EscapeCsv(log.Megjegyzes)};" +
+                $"{EscapeCsv(log.Vegrehajto)}");
+        }
+
+        var bytes = Encoding.UTF8.GetBytes(sb.ToString());
+        var fileName = $"mozgasnaplo_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+
+        return File(bytes, "text/csv; charset=utf-8", fileName);
+    }
+
+    private static string EscapeCsv(string? value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return "";
+
+        value = value.Replace("\"", "\"\"");
+
+        if (value.Contains(';') || value.Contains('"') || value.Contains('\n'))
+            return $"\"{value}\"";
+
+        return value;
     }
 
     [HttpPost]
@@ -131,7 +186,7 @@ public class HomeController : Controller
         try
         {
             _db.MoveStock(kod, tipus, mennyiseg, megjegyzes, user.Username);
-            TempData["Success"] = $"A(z) {tipus.ToLower()} sikeresen végrehajtva.";
+            TempData["Success"] = $"A(z) {tipus} sikeresen végrehajtva.";
         }
         catch (Exception ex)
         {
