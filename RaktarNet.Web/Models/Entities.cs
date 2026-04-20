@@ -21,7 +21,7 @@ public class LogEntry
     public int KeszletUtana { get; set; }
     public string Megjegyzes { get; set; } = "";
     public string Vegrehajto { get; set; } = "";
-}
+} 
 
 public class UserItem
 {
@@ -30,15 +30,6 @@ public class UserItem
     public string Role { get; set; } = "";
     public int Aktiv { get; set; }
     public string Letrehozva { get; set; } = "";
-}
-
-public class DashboardViewModel
-{
-    public List<Product> Products { get; set; } = new();
-    public List<LogEntry> Logs { get; set; } = new();
-    public List<UserItem> Users { get; set; } = new();
-    public SessionUser? CurrentUser { get; set; }
-    public string Search { get; set; } = "";
 }
 
 public class LoginViewModel
