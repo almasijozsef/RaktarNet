@@ -9,16 +9,12 @@
 
 @if (TempData["Success"] != null)
 {
-    <script>
-        alert(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["Success"]!.ToString())));
-    </script>
+    <div class="alert success">@TempData["Success"]</div>
 }
 
 @if (TempData["Error"] != null)
 {
-    <script>
-        alert(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(TempData["Error"]!.ToString())));
-    </script>
+    <div class="alert error">@TempData["Error"]</div>
 }
 
 <div class="topbar">
@@ -240,23 +236,23 @@
                         <tr>
                             <td>@log.Datum</td>
                             <td>
-    @if (log.Tipus == "Bevételezés")
-    {
-        <span class="log-badge log-in">@log.Tipus</span>
-    }
-    else if (log.Tipus == "Kiadás")
-    {
-        <span class="log-badge log-out">@log.Tipus</span>
-    }
-    else if (log.Tipus == "Új termék")
-    {
-        <span class="log-badge log-new">@log.Tipus</span>
-    }
-    else
-    {
-        <span>@log.Tipus</span>
-    }
-</td>
+                                @if (log.Tipus == "Bevételezés")
+                                {
+                                    <span class="log-badge log-in">@log.Tipus</span>
+                                }
+                                else if (log.Tipus == "Kiadás")
+                                {
+                                    <span class="log-badge log-out">@log.Tipus</span>
+                                }
+                                else if (log.Tipus == "Új termék")
+                                {
+                                    <span class="log-badge log-new">@log.Tipus</span>
+                                }
+                                else
+                                {
+                                    <span>@log.Tipus</span>
+                                }
+                            </td>
                             <td>@log.TermekNev</td>
                             <td>@log.TermekKod</td>
                             <td>@log.Mennyiseg</td>
@@ -297,21 +293,30 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var u in Model.Users)
+                    @if (Model.Users == null || !Model.Users.Any())
                     {
                         <tr>
-                            <td>@u.Id</td>
-                            <td>@u.Username</td>
-                            <td>@u.Role</td>
-                            <td>@(u.Aktiv == 1 ? "Igen" : "Nem")</td>
-                            <td>@u.Letrehozva</td>
-                            <td>
-                                <form method="post" asp-action="DeleteUser" onsubmit="return confirm('Biztosan törlöd?');">
-                                    <input type="hidden" name="id" value="@u.Id" />
-                                    <button type="submit" class="danger">🗑️ Törlés</button>
-                                </form>
-                            </td>
+                            <td colspan="6" class="muted">Nincs megjeleníthető felhasználó.</td>
                         </tr>
+                    }
+                    else
+                    {
+                        @foreach (var u in Model.Users)
+                        {
+                            <tr>
+                                <td>@u.Id</td>
+                                <td>@u.Username</td>
+                                <td>@u.Role</td>
+                                <td>@(u.Aktiv == 1 ? "Igen" : "Nem")</td>
+                                <td>@u.Letrehozva</td>
+                                <td>
+                                    <form method="post" asp-action="DeleteUser" onsubmit="return confirm('Biztosan törlöd?');">
+                                        <input type="hidden" name="id" value="@u.Id" />
+                                        <button type="submit" class="danger">🗑️ Törlés</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
                     }
                 </tbody>
             </table>
