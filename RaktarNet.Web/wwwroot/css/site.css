@@ -10,22 +10,54 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
 }
 
 .user-info {
     color: white;
     font-weight: bold;
     text-shadow: 0 0 3px rgba(0,0,0,0.4);
+    margin-left: 10px;
+}
+
+.role-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    margin-left: 8px;
+    font-weight: bold;
+}
+
+.role-admin {
+    background: #dc3545;
+    color: white;
+}
+
+.role-vezeto {
+    background: #007bff;
+    color: white;
+}
+
+.role-raktaros {
+    background: #6c757d;
+    color: white;
 }
 
 .logout {
     color: white;
     text-decoration: none;
     font-weight: bold;
+    background: rgba(255,255,255,0.1);
+    padding: 6px 10px;
+    border-radius: 6px;
 }
 
 .logout:hover {
-    text-decoration: underline;
+    text-decoration: none;
+    background: rgba(255,255,255,0.2);
 }
 
 .container {
@@ -40,6 +72,11 @@ body {
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     margin-top: 15px;
+    transition: 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
 }
 
 .grid {
@@ -59,6 +96,11 @@ body {
     border: 1px solid #dbeafe;
     border-radius: 12px;
     padding: 14px;
+    transition: 0.2s;
+}
+
+.stat:hover {
+    transform: translateY(-2px);
 }
 
 .stat span {
@@ -79,6 +121,13 @@ button {
     border-radius: 10px;
     border: 1px solid #cbd5e1;
     font-size: 14px;
+}
+
+input:focus,
+select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 3px rgba(0,123,255,0.5);
 }
 
 button {
@@ -102,6 +151,30 @@ button.danger {
     display: flex;
     flex-direction: column;
     max-width: 360px;
+    gap: 10px;
+}
+
+.inline-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.mini-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 10px;
+    max-width: 250px;
+}
+
+.log-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 15px;
 }
 
 table {
@@ -121,6 +194,10 @@ th {
 td {
     padding: 8px 10px;
     border-bottom: 1px solid #ddd;
+}
+
+tbody tr:hover {
+    background-color: #f1f5f9;
 }
 
 .muted {
@@ -163,13 +240,24 @@ td {
     justify-content: center;
 }
 
+.login-left h1 {
+    margin: 0 0 10px 0;
+    font-size: 32px;
+}
+
 .login-left p,
 .login-left small {
     color: #cbd5e1;
+    margin: 0;
 }
 
 .login-right {
     padding: 36px;
+}
+
+.login-right h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
 }
 
 .login-right form {
@@ -187,10 +275,27 @@ td {
     margin-top: 12px;
 }
 
+details summary {
+    cursor: pointer;
+    font-weight: bold;
+    color: #007bff;
+    margin-bottom: 8px;
+}
+
+details summary:hover {
+    text-decoration: underline;
+}
+
 @media (max-width: 900px) {
     .grid,
     .stats,
     .login-card {
         grid-template-columns: 1fr;
+    }
+
+    .topbar {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
     }
 }
