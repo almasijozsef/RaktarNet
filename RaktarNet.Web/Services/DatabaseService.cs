@@ -87,6 +87,9 @@ public sealed class DatabaseService
 
     public SessionUser? Login(string username, string password)
     {
+        if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+            return null;
+
         using var conn = Open();
         using var cmd = conn.CreateCommand();
         cmd.CommandText = """
@@ -152,6 +155,22 @@ public sealed class DatabaseService
 
     public void AddProduct(string nev, string kod, int mennyiseg, int egysegar, string vegrehajto)
     {
+        nev = nev?.Trim() ?? "";
+        kod = kod?.Trim() ?? "";
+        vegrehajto = vegrehajto?.Trim() ?? "";
+
+        if (string.IsNullOrWhiteSpace(nev))
+            throw new Exception("A termék neve kötelező.");
+
+        if (string.IsNullOrWhiteSpace(kod))
+            throw new Exception("A termékkód kötelező.");
+
+        if (mennyiseg <= 0)
+            throw new Exception("A mennyiségnek 0-nál nagyobbnak kell lennie.");
+
+        if (egysegar < 0)
+            throw new Exception("Az egységár nem lehet negatív.");
+
         using var conn = Open();
         var now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
@@ -160,12 +179,20 @@ public sealed class DatabaseService
             INSERT INTO termekek (nev, kod, mennyiseg, egysegar, modositva)
             VALUES ($n, $k, $m, $e, $d)
         """;
-        cmd.Parameters.AddWithValue("$n", nev.Trim());
-        cmd.Parameters.AddWithValue("$k", kod.Trim());
+        cmd.Parameters.AddWithValue("$n", nev);
+        cmd.Parameters.AddWithValue("$k", kod);
         cmd.Parameters.AddWithValue("$m", mennyiseg);
         cmd.Parameters.AddWithValue("$e", egysegar);
         cmd.Parameters.AddWithValue("$d", now);
-        cmd.ExecuteNonQuery();
+
+        try
+        {
+            cmd.ExecuteNonQuery();
+        }
+        catch (SqliteException ex) when (ex.SqliteErrorCode == 19)
+        {
+            throw new Exception("A megadott termékkód már létezik.");
+        }
 
         using var log = conn.CreateCommand();
         log.CommandText = """
@@ -175,17 +202,36 @@ public sealed class DatabaseService
         """;
         log.Parameters.AddWithValue("$d", now);
         log.Parameters.AddWithValue("$t", "Új termék");
-        log.Parameters.AddWithValue("$tn", nev.Trim());
-        log.Parameters.AddWithValue("$tk", kod.Trim());
+        log.Parameters.AddWithValue("$tn", nev);
+        log.Parameters.AddWithValue("$tk", kod);
         log.Parameters.AddWithValue("$m", mennyiseg);
         log.Parameters.AddWithValue("$ku", mennyiseg);
         log.Parameters.AddWithValue("$megj", "Új termék rögzítése");
-        log.Parameters.AddWithValue("$v", vegrehajto ?? "");
+        log.Parameters.AddWithValue("$v", vegrehajto);
         log.ExecuteNonQuery();
     }
 
     public void UpdateProduct(string oldKod, string nev, string kod, int mennyiseg, int egysegar)
     {
+        oldKod = oldKod?.Trim() ?? "";
+        nev = nev?.Trim() ?? "";
+        kod = kod?.Trim() ?? "";
+
+        if (string.IsNullOrWhiteSpace(oldKod))
+            throw new Exception("Az eredeti termékkód hiányzik.");
+
+        if (string.IsNullOrWhiteSpace(nev))
+            throw new Exception("A termék neve kötelező.");
+
+        if (string.IsNullOrWhiteSpace(kod))
+            throw new Exception("A termékkód kötelező.");
+
+        if (mennyiseg < 0)
+            throw new Exception("A mennyiség nem lehet negatív.");
+
+        if (egysegar < 0)
+            throw new Exception("Az egységár nem lehet negatív.");
+
         using var conn = Open();
         using var cmd = conn.CreateCommand();
         cmd.CommandText = """
@@ -193,24 +239,36 @@ public sealed class DatabaseService
             SET nev = $n, kod = $k, mennyiseg = $m, egysegar = $e, modositva = $d
             WHERE kod = $old
         """;
-        cmd.Parameters.AddWithValue("$n", nev.Trim());
-        cmd.Parameters.AddWithValue("$k", kod.Trim());
+        cmd.Parameters.AddWithValue("$n", nev);
+        cmd.Parameters.AddWithValue("$k", kod);
         cmd.Parameters.AddWithValue("$m", mennyiseg);
         cmd.Parameters.AddWithValue("$e", egysegar);
         cmd.Parameters.AddWithValue("$d", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-        cmd.Parameters.AddWithValue("$old", oldKod.Trim());
+        cmd.Parameters.AddWithValue("$old", oldKod);
 
-        var affected = cmd.ExecuteNonQuery();
-        if (affected == 0)
-            throw new Exception("A termék nem található.");
+        try
+        {
+            var affected = cmd.ExecuteNonQuery();
+            if (affected == 0)
+                throw new Exception("A termék nem található.");
+        }
+        catch (SqliteException ex) when (ex.SqliteErrorCode == 19)
+        {
+            throw new Exception("A megadott új termékkód már használatban van.");
+        }
     }
 
     public void DeleteProduct(string kod)
     {
+        kod = kod?.Trim() ?? "";
+
+        if (string.IsNullOrWhiteSpace(kod))
+            throw new Exception("A termékkód kötelező.");
+
         using var conn = Open();
         using var cmd = conn.CreateCommand();
         cmd.CommandText = "DELETE FROM termekek WHERE kod = $k";
-        cmd.Parameters.AddWithValue("$k", kod.Trim());
+        cmd.Parameters.AddWithValue("$k", kod);
 
         var affected = cmd.ExecuteNonQuery();
         if (affected == 0)
@@ -219,8 +277,22 @@ public sealed class DatabaseService
 
     public void MoveStock(string kod, string tipus, int mennyiseg, string megjegyzes, string vegrehajto)
     {
+        kod = kod?.Trim() ?? "";
+        tipus = tipus?.Trim() ?? "";
+        megjegyzes = megjegyzes?.Trim() ?? "";
+        vegrehajto = vegrehajto?.Trim() ?? "";
+
+        if (string.IsNullOrWhiteSpace(kod))
+            throw new Exception("A termékkód megadása kötelező.");
+
+        if (string.IsNullOrWhiteSpace(tipus))
+            throw new Exception("A művelet típusa kötelező.");
+
         if (mennyiseg <= 0)
             throw new Exception("A mennyiségnek nagyobbnak kell lennie 0-nál.");
+
+        if (string.IsNullOrWhiteSpace(megjegyzes))
+            throw new Exception("A megjegyzés megadása kötelező.");
 
         using var conn = Open();
 
@@ -230,7 +302,7 @@ public sealed class DatabaseService
         using (var get = conn.CreateCommand())
         {
             get.CommandText = "SELECT nev, mennyiseg FROM termekek WHERE kod = $k";
-            get.Parameters.AddWithValue("$k", kod.Trim());
+            get.Parameters.AddWithValue("$k", kod);
 
             using var r = get.ExecuteReader();
             if (!r.Read())
@@ -268,7 +340,7 @@ public sealed class DatabaseService
             """;
             update.Parameters.AddWithValue("$m", newQty);
             update.Parameters.AddWithValue("$d", now);
-            update.Parameters.AddWithValue("$k", kod.Trim());
+            update.Parameters.AddWithValue("$k", kod);
             update.ExecuteNonQuery();
         }
 
@@ -282,11 +354,11 @@ public sealed class DatabaseService
             log.Parameters.AddWithValue("$d", now);
             log.Parameters.AddWithValue("$t", tipus);
             log.Parameters.AddWithValue("$tn", termekNev);
-            log.Parameters.AddWithValue("$tk", kod.Trim());
+            log.Parameters.AddWithValue("$tk", kod);
             log.Parameters.AddWithValue("$m", mennyiseg);
             log.Parameters.AddWithValue("$ku", newQty);
-            log.Parameters.AddWithValue("$megj", megjegyzes ?? "");
-            log.Parameters.AddWithValue("$v", vegrehajto ?? "");
+            log.Parameters.AddWithValue("$megj", megjegyzes);
+            log.Parameters.AddWithValue("$v", vegrehajto);
             log.ExecuteNonQuery();
         }
     }
@@ -436,17 +508,40 @@ public sealed class DatabaseService
 
     public void AddUser(string username, string password, string role)
     {
+        username = username?.Trim() ?? "";
+        role = role?.Trim() ?? "";
+
+        if (string.IsNullOrWhiteSpace(username))
+            throw new Exception("A felhasználónév megadása kötelező.");
+
+        if (string.IsNullOrWhiteSpace(password))
+            throw new Exception("A jelszó megadása kötelező.");
+
+        if (string.IsNullOrWhiteSpace(role))
+            throw new Exception("A jogosultság megadása kötelező.");
+
+        if (role != "admin" && role != "vezeto" && role != "raktaros")
+            throw new Exception("Érvénytelen jogosultsági szint.");
+
         using var conn = Open();
         using var cmd = conn.CreateCommand();
         cmd.CommandText = """
             INSERT INTO dolgozok (felhasznalonev, jelszo_hash, jogosultsag, aktiv, letrehozva)
             VALUES ($u, $p, $r, 1, $d)
         """;
-        cmd.Parameters.AddWithValue("$u", username.Trim());
+        cmd.Parameters.AddWithValue("$u", username);
         cmd.Parameters.AddWithValue("$p", HashPassword(password));
-        cmd.Parameters.AddWithValue("$r", role.Trim());
+        cmd.Parameters.AddWithValue("$r", role);
         cmd.Parameters.AddWithValue("$d", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-        cmd.ExecuteNonQuery();
+
+        try
+        {
+            cmd.ExecuteNonQuery();
+        }
+        catch (SqliteException ex) when (ex.SqliteErrorCode == 19)
+        {
+            throw new Exception("A megadott felhasználónév már létezik.");
+        }
     }
 
     public void DeleteUser(int id)
