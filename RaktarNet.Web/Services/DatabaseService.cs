@@ -233,28 +233,77 @@ public sealed class DatabaseService
             throw new Exception("Az egységár nem lehet negatív.");
 
         using var conn = Open();
-        using var cmd = conn.CreateCommand();
-        cmd.CommandText = """
-            UPDATE termekek
-            SET nev = $n, kod = $k, mennyiseg = $m, egysegar = $e, modositva = $d
-            WHERE kod = $old
-        """;
-        cmd.Parameters.AddWithValue("$n", nev);
-        cmd.Parameters.AddWithValue("$k", kod);
-        cmd.Parameters.AddWithValue("$m", mennyiseg);
-        cmd.Parameters.AddWithValue("$e", egysegar);
-        cmd.Parameters.AddWithValue("$d", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-        cmd.Parameters.AddWithValue("$old", oldKod);
+        var now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
-        try
+        string regiNev = "";
+        string regiKod = "";
+        int regiMennyiseg = 0;
+        int regiEgysegar = 0;
+
+        using (var select = conn.CreateCommand())
         {
-            var affected = cmd.ExecuteNonQuery();
-            if (affected == 0)
+            select.CommandText = """
+                SELECT nev, kod, mennyiseg, egysegar
+                FROM termekek
+                WHERE kod = $old
+            """;
+            select.Parameters.AddWithValue("$old", oldKod);
+
+            using var r = select.ExecuteReader();
+            if (!r.Read())
                 throw new Exception("A termék nem található.");
+
+            regiNev = r.GetString(0);
+            regiKod = r.GetString(1);
+            regiMennyiseg = r.GetInt32(2);
+            regiEgysegar = r.GetInt32(3);
         }
-        catch (SqliteException ex) when (ex.SqliteErrorCode == 19)
+
+        using (var cmd = conn.CreateCommand())
         {
-            throw new Exception("A megadott új termékkód már használatban van.");
+            cmd.CommandText = """
+                UPDATE termekek
+                SET nev = $n, kod = $k, mennyiseg = $m, egysegar = $e, modositva = $d
+                WHERE kod = $old
+            """;
+            cmd.Parameters.AddWithValue("$n", nev);
+            cmd.Parameters.AddWithValue("$k", kod);
+            cmd.Parameters.AddWithValue("$m", mennyiseg);
+            cmd.Parameters.AddWithValue("$e", egysegar);
+            cmd.Parameters.AddWithValue("$d", now);
+            cmd.Parameters.AddWithValue("$old", oldKod);
+
+            try
+            {
+                var affected = cmd.ExecuteNonQuery();
+                if (affected == 0)
+                    throw new Exception("A termék nem található.");
+            }
+            catch (SqliteException ex) when (ex.SqliteErrorCode == 19)
+            {
+                throw new Exception("A megadott új termékkód már használatban van.");
+            }
+        }
+
+        using (var log = conn.CreateCommand())
+        {
+            log.CommandText = """
+                INSERT INTO mozgasnaplo
+                (datum, tipus, termek_nev, termek_kod, mennyiseg, keszlet_utana, megjegyzes, vegrehajto)
+                VALUES ($d, $t, $tn, $tk, $m, $ku, $megj, $v)
+            """;
+            log.Parameters.AddWithValue("$d", now);
+            log.Parameters.AddWithValue("$t", "Módosítás");
+            log.Parameters.AddWithValue("$tn", nev);
+            log.Parameters.AddWithValue("$tk", kod);
+            log.Parameters.AddWithValue("$m", mennyiseg);
+            log.Parameters.AddWithValue("$ku", mennyiseg);
+            log.Parameters.AddWithValue(
+                "$megj",
+                $"Termék módosítva. Régi adatok: Név={regiNev}, Kód={regiKod}, Mennyiség={regiMennyiseg}, Egységár={regiEgysegar} Ft"
+            );
+            log.Parameters.AddWithValue("$v", "Rendszer");
+            log.ExecuteNonQuery();
         }
     }
 
@@ -266,13 +315,54 @@ public sealed class DatabaseService
             throw new Exception("A termékkód kötelező.");
 
         using var conn = Open();
-        using var cmd = conn.CreateCommand();
-        cmd.CommandText = "DELETE FROM termekek WHERE kod = $k";
-        cmd.Parameters.AddWithValue("$k", kod);
 
-        var affected = cmd.ExecuteNonQuery();
-        if (affected == 0)
-            throw new Exception("A termék nem található.");
+        string termekNev = "";
+        int mennyiseg = 0;
+
+        using (var select = conn.CreateCommand())
+        {
+            select.CommandText = """
+                SELECT nev, mennyiseg
+                FROM termekek
+                WHERE kod = $k
+            """;
+            select.Parameters.AddWithValue("$k", kod);
+
+            using var r = select.ExecuteReader();
+            if (!r.Read())
+                throw new Exception("A termék nem található.");
+
+            termekNev = r.GetString(0);
+            mennyiseg = r.GetInt32(1);
+        }
+
+        using (var cmd = conn.CreateCommand())
+        {
+            cmd.CommandText = "DELETE FROM termekek WHERE kod = $k";
+            cmd.Parameters.AddWithValue("$k", kod);
+
+            var affected = cmd.ExecuteNonQuery();
+            if (affected == 0)
+                throw new Exception("A termék nem található.");
+        }
+
+        using (var log = conn.CreateCommand())
+        {
+            log.CommandText = """
+                INSERT INTO mozgasnaplo
+                (datum, tipus, termek_nev, termek_kod, mennyiseg, keszlet_utana, megjegyzes, vegrehajto)
+                VALUES ($d, $t, $tn, $tk, $m, $ku, $megj, $v)
+            """;
+            log.Parameters.AddWithValue("$d", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+            log.Parameters.AddWithValue("$t", "Törlés");
+            log.Parameters.AddWithValue("$tn", termekNev);
+            log.Parameters.AddWithValue("$tk", kod);
+            log.Parameters.AddWithValue("$m", mennyiseg);
+            log.Parameters.AddWithValue("$ku", 0);
+            log.Parameters.AddWithValue("$megj", "Termék törlése");
+            log.Parameters.AddWithValue("$v", "Rendszer");
+            log.ExecuteNonQuery();
+        }
     }
 
     public void MoveStock(string kod, string tipus, int mennyiseg, string megjegyzes, string vegrehajto)
