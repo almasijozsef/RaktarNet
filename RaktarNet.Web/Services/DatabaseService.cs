@@ -211,7 +211,7 @@ public sealed class DatabaseService
         log.ExecuteNonQuery();
     }
 
-    public void UpdateProduct(string oldKod, string nev, string kod, int mennyiseg, int egysegar)
+    public void UpdateProduct(string oldKod, string nev, string kod, int mennyiseg, int egysegar, string vegrehajto)
     {
         oldKod = oldKod?.Trim() ?? "";
         nev = nev?.Trim() ?? "";
@@ -302,12 +302,12 @@ public sealed class DatabaseService
                 "$megj",
                 $"Termék módosítva. Régi adatok: Név={regiNev}, Kód={regiKod}, Mennyiség={regiMennyiseg}, Egységár={regiEgysegar} Ft"
             );
-            log.Parameters.AddWithValue("$v", "Rendszer");
+            log.Parameters.AddWithValue("$v", vegrehajto?.Trim() ?? "");
             log.ExecuteNonQuery();
         }
     }
 
-    public void DeleteProduct(string kod)
+    public void DeleteProduct(string kod, string vegrehajto)
     {
         kod = kod?.Trim() ?? "";
 
@@ -360,7 +360,7 @@ public sealed class DatabaseService
             log.Parameters.AddWithValue("$m", mennyiseg);
             log.Parameters.AddWithValue("$ku", 0);
             log.Parameters.AddWithValue("$megj", "Termék törlése");
-            log.Parameters.AddWithValue("$v", "Rendszer");
+            log.Parameters.AddWithValue("$v", vegrehajto?.Trim() ?? "");;
             log.ExecuteNonQuery();
         }
     }
