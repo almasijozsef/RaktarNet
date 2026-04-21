@@ -80,16 +80,24 @@
 
         <div class="card">
             <h3>Bevételezés / Kiadás</h3>
-            <form method="post" asp-action="MoveStock" class="stack-form" onsubmit="return confirmMoveStock(this)">
-                <input name="kod" placeholder="Termék kódja" required />
-                <select name="tipus">
-                    <option value="Bevételezés">Bevételezés</option>
-                    <option value="Kiadás">Kiadás</option>
-                </select>
-                <input name="mennyiseg" type="number" placeholder="Mennyiség" min="1" required />
-                <i<input name="megjegyzes" placeholder="Megjegyzés (pl. áru beérkezése, selejt, kiadás oka)" required />
-                <button type="submit">💾 Mentés</button>
-            </form>
+            <form method="post" asp-action="MoveStock" class="stack-form">
+
+    <input name="kod" placeholder="Termék kódja" required />
+
+    <select name="tipus">
+        <option value="Bevételezés">Bevételezés</option>
+        <option value="Kiadás">Kiadás</option>
+    </select>
+
+    <input name="mennyiseg" type="number" placeholder="Mennyiség" min="1" required />
+
+    <input name="megjegyzes"
+           placeholder="Megjegyzés (pl. áru beérkezése, selejt, kiadás oka)"
+           required />
+
+    <button type="submit">💾 Mentés</button>
+
+</form>
         </div>
     </div>
 
