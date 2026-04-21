@@ -4,7 +4,7 @@
     <div class="login-card">
         <div class="login-left">
             <h1>RaktarNet</h1>
-            <p>Készletkezelés vállalati környezetben</p>
+            <p>Raktárkészlet-nyilvántartó rendszer</p>
         </div>
 
         <div class="login-right">
@@ -18,13 +18,15 @@
 
             <form method="post">
                 <label>Felhasználónév</label>
-                <input asp-for="Username" />
+                <input asp-for="Username" placeholder="Felhasználónév" />
 
                 <label>Jelszó</label>
-                <input asp-for="Password" type="password" />
+                <input asp-for="Password" type="password" placeholder="Jelszó" />
 
-                <button type="submit">Belépés</button>
+                <button type="submit">🔐 Belépés</button>
             </form>
+
+            <p class="muted demo">Csak jogosult felhasználók számára elérhető.</p>
         </div>
     </div>
 </div>
