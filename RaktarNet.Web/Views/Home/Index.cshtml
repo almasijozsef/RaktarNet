@@ -87,7 +87,7 @@
                     <option value="Kiadás">Kiadás</option>
                 </select>
                 <input name="mennyiseg" type="number" placeholder="Mennyiség" min="1" required />
-                <input name="megjegyzes" placeholder="Megjegyzés" />
+                <input name="megjegyzes" placeholder="Megjegyzés (kötelező)" required />
                 <button type="submit">💾 Mentés</button>
             </form>
         </div>
@@ -326,26 +326,56 @@
 
 <script>
     function confirmMoveStock(form) {
-        const kod = form.kod.value;
+        const kod = form.kod.value.trim();
         const tipus = form.tipus.value;
         const mennyiseg = form.mennyiseg.value;
-        const megjegyzes = form.megjegyzes ? form.megjegyzes.value : "";
+        const megjegyzes = form.megjegyzes ? form.megjegyzes.value.trim() : "";
+
+        if (!kod) {
+            alert("A termékkód megadása kötelező!");
+            return false;
+        }
+
+        if (!mennyiseg || Number(mennyiseg) <= 0) {
+            alert("A mennyiségnek 0-nál nagyobbnak kell lennie!");
+            return false;
+        }
+
+        if (!megjegyzes) {
+            alert("A megjegyzés megadása kötelező!");
+            return false;
+        }
 
         const uzenet =
             "Biztosan menteni szeretnéd az alábbi műveletet?\n\n" +
             "Termékkód: " + kod + "\n" +
             "Művelet típusa: " + tipus + "\n" +
             "Mennyiség: " + mennyiseg + "\n" +
-            "Megjegyzés: " + (megjegyzes ? megjegyzes : "-");
+            "Megjegyzés: " + megjegyzes;
 
         return confirm(uzenet);
     }
 
     function confirmAddProduct(form) {
-        const nev = form.nev.value;
-        const kod = form.kod.value;
+        const nev = form.nev.value.trim();
+        const kod = form.kod.value.trim();
         const mennyiseg = form.mennyiseg.value;
         const egysegar = form.egysegar.value;
+
+        if (!nev || !kod) {
+            alert("A termék neve és kódja kötelező!");
+            return false;
+        }
+
+        if (!mennyiseg || Number(mennyiseg) <= 0) {
+            alert("A mennyiségnek 0-nál nagyobbnak kell lennie!");
+            return false;
+        }
+
+        if (Number(egysegar) < 0) {
+            alert("Az egységár nem lehet negatív!");
+            return false;
+        }
 
         const uzenet =
             "Biztosan menteni szeretnéd az alábbi új terméket?\n\n" +
