@@ -6,7 +6,6 @@
     var canManageProducts = isAdmin || isVezeto;
     var selectedTipus = Model.LogTipus ?? "";
 }
-}
 
 @if (TempData["Success"] != null)
 {
@@ -26,9 +25,23 @@
     <div>
         <strong>RaktarNet</strong>
         <span class="user-info">
-            Felhasználó: @Model.CurrentUser?.Username | Jogosultság: @Model.CurrentUser?.Role
+            Felhasználó: @Model.CurrentUser?.Username
         </span>
+
+        @if (isAdmin)
+        {
+            <span class="role-badge role-admin">admin</span>
+        }
+        else if (isVezeto)
+        {
+            <span class="role-badge role-vezeto">vezető</span>
+        }
+        else
+        {
+            <span class="role-badge role-raktaros">raktáros</span>
+        }
     </div>
+
     <a class="logout" asp-controller="Account" asp-action="Logout">Kijelentkezés</a>
 </div>
 
@@ -56,7 +69,7 @@
             <h3>Készlet keresése</h3>
             <form method="get" class="inline-form">
                 <input type="text" name="search" value="@Model.Search" placeholder="Termék vagy kód" />
-                <button type="submit">Keresés</button>
+                <button type="submit">🔎 Keresés</button>
             </form>
 
             <h3>Új termék</h3>
@@ -65,7 +78,7 @@
                 <input name="kod" placeholder="Kód" required />
                 <input name="mennyiseg" type="number" placeholder="Mennyiség" min="1" required />
                 <input name="egysegar" type="number" placeholder="Egységár" min="0" required />
-                <button type="submit">Hozzáadás</button>
+                <button type="submit">➕ Hozzáadás</button>
             </form>
         </div>
 
@@ -79,7 +92,7 @@
                 </select>
                 <input name="mennyiseg" type="number" placeholder="Mennyiség" min="1" required />
                 <input name="megjegyzes" placeholder="Megjegyzés" />
-                <button type="submit">Mentés</button>
+                <button type="submit">💾 Mentés</button>
             </form>
         </div>
     </div>
@@ -98,37 +111,46 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in Model.Products)
+                @if (Model.Products == null || !Model.Products.Any())
                 {
                     <tr>
-                        <td>@item.Nev</td>
-                        <td>@item.Kod</td>
-                        <td>@item.Mennyiseg</td>
-                        <td>@item.Egysegar Ft</td>
-                        <td>@item.Modositva</td>
-                        <td>
-                            @if (canManageProducts)
-                            {
-                                <details>
-                                    <summary>Módosítás</summary>
-
-                                    <form method="post" asp-action="UpdateProduct" class="mini-form" onsubmit="return confirm('Biztosan menteni szeretnéd a módosításokat?');">
-                                        <input type="hidden" name="oldKod" value="@item.Kod" />
-                                        <input name="nev" value="@item.Nev" required />
-                                        <input name="kod" value="@item.Kod" required />
-                                        <input name="mennyiseg" type="number" value="@item.Mennyiseg" min="0" required />
-                                        <input name="egysegar" type="number" value="@item.Egysegar" min="0" required />
-                                        <button type="submit">Mentés</button>
-                                    </form>
-
-                                    <form method="post" asp-action="DeleteProduct" onsubmit="return confirm('Biztosan törlöd?');">
-                                        <input type="hidden" name="kod" value="@item.Kod" />
-                                        <button type="submit" class="danger">Törlés</button>
-                                    </form>
-                                </details>
-                            }
-                        </td>
+                        <td colspan="6" class="muted">Nincs megjeleníthető termék.</td>
                     </tr>
+                }
+                else
+                {
+                    @foreach (var item in Model.Products)
+                    {
+                        <tr>
+                            <td>@item.Nev</td>
+                            <td>@item.Kod</td>
+                            <td>@item.Mennyiseg</td>
+                            <td>@item.Egysegar Ft</td>
+                            <td>@item.Modositva</td>
+                            <td>
+                                @if (canManageProducts)
+                                {
+                                    <details>
+                                        <summary>Módosítás</summary>
+
+                                        <form method="post" asp-action="UpdateProduct" class="mini-form" onsubmit="return confirm('Biztosan menteni szeretnéd a módosításokat?');">
+                                            <input type="hidden" name="oldKod" value="@item.Kod" />
+                                            <input name="nev" value="@item.Nev" required />
+                                            <input name="kod" value="@item.Kod" required />
+                                            <input name="mennyiseg" type="number" value="@item.Mennyiseg" min="0" required />
+                                            <input name="egysegar" type="number" value="@item.Egysegar" min="0" required />
+                                            <button type="submit">💾 Mentés</button>
+                                        </form>
+
+                                        <form method="post" asp-action="DeleteProduct" onsubmit="return confirm('Biztosan törlöd?');">
+                                            <input type="hidden" name="kod" value="@item.Kod" />
+                                            <button type="submit" class="danger">🗑️ Törlés</button>
+                                        </form>
+                                    </details>
+                                }
+                            </td>
+                        </tr>
+                    }
                 }
             </tbody>
         </table>
@@ -187,7 +209,7 @@
                    name="logDateTo"
                    value="@Model.LogDateTo" />
 
-            <button type="submit">Szűrés</button>
+            <button type="submit">🔎 Szűrés</button>
             <a asp-action="Index">Törlés</a>
         </form>
 
@@ -205,18 +227,27 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var log in Model.Logs)
+                @if (Model.Logs == null || !Model.Logs.Any())
                 {
                     <tr>
-                        <td>@log.Datum</td>
-                        <td>@log.Tipus</td>
-                        <td>@log.TermekNev</td>
-                        <td>@log.TermekKod</td>
-                        <td>@log.Mennyiseg</td>
-                        <td>@log.KeszletUtana</td>
-                        <td>@log.Megjegyzes</td>
-                        <td>@log.Vegrehajto</td>
+                        <td colspan="8" class="muted">Nincs megjeleníthető naplóbejegyzés.</td>
                     </tr>
+                }
+                else
+                {
+                    @foreach (var log in Model.Logs)
+                    {
+                        <tr>
+                            <td>@log.Datum</td>
+                            <td>@log.Tipus</td>
+                            <td>@log.TermekNev</td>
+                            <td>@log.TermekKod</td>
+                            <td>@log.Mennyiseg</td>
+                            <td>@log.KeszletUtana</td>
+                            <td>@log.Megjegyzes</td>
+                            <td>@log.Vegrehajto</td>
+                        </tr>
+                    }
                 }
             </tbody>
         </table>
@@ -234,7 +265,7 @@
                     <option value="raktaros" selected>raktaros</option>
                     <option value="vezeto">vezeto</option>
                 </select>
-                <button type="submit">Dolgozó felvétele</button>
+                <button type="submit">👤 Dolgozó felvétele</button>
             </form>
 
             <table>
@@ -260,7 +291,7 @@
                             <td>
                                 <form method="post" asp-action="DeleteUser" onsubmit="return confirm('Biztosan törlöd?');">
                                     <input type="hidden" name="id" value="@u.Id" />
-                                    <button type="submit" class="danger">Törlés</button>
+                                    <button type="submit" class="danger">🗑️ Törlés</button>
                                 </form>
                             </td>
                         </tr>
