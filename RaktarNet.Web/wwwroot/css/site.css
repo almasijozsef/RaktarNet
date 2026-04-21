@@ -1,8 +1,6 @@
-body{
-    margin:0;
-    font-family:Segoe UI, Arial, sans-serif;
-    background:#eef4fb;
-    color:#0f172a
+body {
+    background-color: #f4f6f9;
+    font-family: Arial, sans-serif;
 }
 .topbar {
     background-color: #1f2a38;
@@ -31,12 +29,12 @@ body{
     margin:20px auto;
     padding:0 16px
 }
-.card{
-    background:#fff;
-    border-radius:14px;
-    padding:18px;
-    box-shadow:0 4px 18px rgba(0,0,0,.06);
-    margin-bottom:18px
+.card {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin-top: 15px;
 }
 .grid{
     display:grid;
@@ -69,36 +67,44 @@ input,select,button{
     border:1px solid #cbd5e1;
     font-size:14px
 }
-button{
-    background:#2563eb;
-    color:#fff;
-    border:none;
-    cursor:pointer;
-    font-weight:600
+button {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    background-color: #007bff;
+    color: white;
 }
-button.danger{background:#dc2626}
-.inline-form,.stack-form,.mini-form{
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap
+
+button:hover {
+    opacity: 0.9;
+}
+button.danger {
+    background-color: #dc3545;
+    color: white;
 }
 .stack-form{
     flex-direction:column;
     max-width:360px
 }
-table{
-    width:100%;
-    border-collapse:collapse;
-    margin-top:10px
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    background: white;
 }
-th,td{
-    text-align:left;
-    border-bottom:1px solid #e5e7eb;
-    padding:10px;
-    vertical-align:top
+
+th {
+    background-color: #1f2a38;
+    color: white;
+    padding: 10px;
+    text-align: left;
 }
-th{
-    background:#f8fafc
+
+td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #ddd;
 }
 .muted{color:#64748b}
 .error-box{
@@ -136,6 +142,14 @@ th{
     display:flex;
     flex-direction:column;
     gap:10px
+}
+.login-box {
+    width: 320px;
+    margin: 100px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
 .demo{margin-top:12px}
 @media (max-width:900px){
