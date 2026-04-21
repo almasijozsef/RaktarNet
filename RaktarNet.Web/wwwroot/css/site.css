@@ -374,4 +374,19 @@ details summary:hover {
         gap: 10px;
         align-items: flex-start;
     }
+    .stack-form input,
+.stack-form select {
+    text-align: left !important;
+}
+
+.stack-form input::placeholder {
+    text-align: left;
+}
+    input[name="mennyiseg"] {
+    text-align: left !important;
+}
+    .stack-form input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 4px rgba(37,99,235,0.4);
+}
 }
