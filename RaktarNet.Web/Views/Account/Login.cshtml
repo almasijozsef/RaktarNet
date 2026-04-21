@@ -1,10 +1,12 @@
 @model LoginViewModel
+
 <div class="login-page">
     <div class="login-card">
         <div class="login-left">
             <h1>RaktarNet</h1>
             <p>Készletkezelés vállalati környezetben</p>
         </div>
+
         <div class="login-right">
             <h2>Bejelentkezés</h2>
             <p class="muted">Kérjük, adja meg felhasználónevét és jelszavát.</p>
@@ -17,11 +19,12 @@
             <form method="post">
                 <label>Felhasználónév</label>
                 <input asp-for="Username" />
+
                 <label>Jelszó</label>
                 <input asp-for="Password" type="password" />
+
                 <button type="submit">Belépés</button>
             </form>
-               
         </div>
     </div>
 </div>
