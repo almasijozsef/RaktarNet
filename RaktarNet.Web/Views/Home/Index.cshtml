@@ -25,7 +25,9 @@
 <div class="topbar">
     <div>
         <strong>RaktarNet</strong>
-        <span class="muted">Felhasználó: @Model.CurrentUser?.Username | Jogosultság: @Model.CurrentUser?.Role</span>
+        <span class="user-info">
+            Felhasználó: @Model.CurrentUser?.Username | Jogosultság: @Model.CurrentUser?.Role
+        </span>
     </div>
     <a class="logout" asp-controller="Account" asp-action="Logout">Kijelentkezés</a>
 </div>
