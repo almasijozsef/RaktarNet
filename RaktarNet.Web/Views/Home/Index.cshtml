@@ -124,7 +124,7 @@
                         <tr>
                             <td>@item.Nev</td>
                             <td>@item.Kod</td>
-                            <td>@item.Mennyiseg</td>
+                            <td class="@(item.Mennyiseg <= 5 ? "low-stock" : "")">@item.Mennyiseg</td>
                             <td>@item.Egysegar Ft</td>
                             <td>@item.Modositva</td>
                             <td>
@@ -210,7 +210,7 @@
                    value="@Model.LogDateTo" />
 
             <button type="submit">🔎 Szűrés</button>
-            <a asp-action="Index">Törlés</a>
+            <a asp-action="Index" class="link-button">✖ Törlés</a>
         </form>
 
         <table>
@@ -239,7 +239,24 @@
                     {
                         <tr>
                             <td>@log.Datum</td>
-                            <td>@log.Tipus</td>
+                            <td>
+    @if (log.Tipus == "Bevételezés")
+    {
+        <span class="log-badge log-in">@log.Tipus</span>
+    }
+    else if (log.Tipus == "Kiadás")
+    {
+        <span class="log-badge log-out">@log.Tipus</span>
+    }
+    else if (log.Tipus == "Új termék")
+    {
+        <span class="log-badge log-new">@log.Tipus</span>
+    }
+    else
+    {
+        <span>@log.Tipus</span>
+    }
+</td>
                             <td>@log.TermekNev</td>
                             <td>@log.TermekKod</td>
                             <td>@log.Mennyiseg</td>
