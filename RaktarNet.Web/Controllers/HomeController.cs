@@ -88,7 +88,7 @@ public class HomeController : Controller
 
         try
         {
-            _db.UpdateProduct(oldKod.Trim(), nev.Trim(), kod.Trim(), mennyiseg, egysegar);
+            _db.UpdateProduct(oldKod.Trim(), nev.Trim(), kod.Trim(), mennyiseg, egysegar, user.Username);
             TempData["Success"] = "A termék sikeresen módosítva lett.";
         }
         catch (Exception ex)
@@ -120,7 +120,7 @@ public class HomeController : Controller
 
         try
         {
-            _db.DeleteProduct(kod.Trim());
+            _db.DeleteProduct(kod.Trim(), user.Username);
             TempData["Success"] = "A termék sikeresen törölve lett.";
         }
         catch (Exception ex)
