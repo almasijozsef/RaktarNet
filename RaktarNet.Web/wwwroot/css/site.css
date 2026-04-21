@@ -299,3 +299,25 @@ details summary:hover {
         align-items: flex-start;
     }
 }
+.log-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.log-in {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.log-out {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.log-new {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
