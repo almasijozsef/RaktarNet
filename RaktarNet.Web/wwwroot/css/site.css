@@ -18,7 +18,7 @@ body {
 .user-info {
     color: white;
     font-weight: bold;
-    text-shadow: 0 0 3px rgba(0,0,0,0.4);
+    text-shadow: 0 0 3px rgba(0, 0, 0, 0.4);
     margin-left: 10px;
 }
 
@@ -50,14 +50,15 @@ body {
     color: white;
     text-decoration: none;
     font-weight: bold;
-    background: rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.1);
     padding: 6px 10px;
     border-radius: 6px;
+    transition: 0.2s;
 }
 
 .logout:hover {
     text-decoration: none;
-    background: rgba(255,255,255,0.2);
+    background: rgba(255, 255, 255, 0.2);
 }
 
 .container {
@@ -70,7 +71,7 @@ body {
     background: white;
     padding: 15px;
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     margin-top: 15px;
     transition: 0.2s;
 }
@@ -127,7 +128,11 @@ input:focus,
 select:focus {
     outline: none;
     border-color: #007bff;
-    box-shadow: 0 0 3px rgba(0,123,255,0.5);
+    box-shadow: 0 0 3px rgba(0, 123, 255, 0.5);
+}
+
+input[type="number"] {
+    text-align: right;
 }
 
 button {
@@ -136,6 +141,8 @@ button {
     font-weight: bold;
     background-color: #007bff;
     color: white;
+    transition: 0.2s;
+    min-width: 120px;
 }
 
 button:hover {
@@ -159,6 +166,10 @@ button.danger {
     flex-wrap: wrap;
     gap: 10px;
     align-items: center;
+}
+
+.inline-form input {
+    min-width: 200px;
 }
 
 .mini-form {
@@ -200,6 +211,11 @@ tbody tr:hover {
     background-color: #f1f5f9;
 }
 
+td.muted {
+    text-align: center;
+    padding: 20px;
+}
+
 .muted {
     color: #64748b;
 }
@@ -210,6 +226,23 @@ tbody tr:hover {
     padding: 12px;
     border-radius: 10px;
     margin: 12px 0;
+}
+
+.alert {
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.alert.success {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.alert.error {
+    background: #fee2e2;
+    color: #991b1b;
 }
 
 .login-page {
@@ -228,7 +261,7 @@ tbody tr:hover {
     background: #fff;
     border-radius: 22px;
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0,0,0,.08);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
 }
 
 .login-left {
@@ -286,19 +319,6 @@ details summary:hover {
     text-decoration: underline;
 }
 
-@media (max-width: 900px) {
-    .grid,
-    .stats,
-    .login-card {
-        grid-template-columns: 1fr;
-    }
-
-    .topbar {
-        flex-direction: column;
-        gap: 10px;
-        align-items: flex-start;
-    }
-}
 .log-badge {
     display: inline-block;
     padding: 4px 10px;
@@ -321,10 +341,12 @@ details summary:hover {
     background: #dbeafe;
     color: #1d4ed8;
 }
+
 .low-stock {
     color: #dc2626;
     font-weight: bold;
 }
+
 .link-button {
     display: inline-block;
     padding: 10px 12px;
@@ -333,9 +355,23 @@ details summary:hover {
     color: #1f2937;
     text-decoration: none;
     font-weight: bold;
+    transition: 0.2s;
 }
 
 .link-button:hover {
     background: #cbd5e1;
 }
 
+@media (max-width: 900px) {
+    .grid,
+    .stats,
+    .login-card {
+        grid-template-columns: 1fr;
+    }
+
+    .topbar {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+}
