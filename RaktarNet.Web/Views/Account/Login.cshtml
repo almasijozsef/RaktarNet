@@ -1,24 +1,32 @@
 @model LoginViewModel
 
 <div class="login-page">
-    <div class="login-card">
+    <div class="login-card modern-login-card">
 
-        <div class="login-left">
-            <h1>RaktarNet</h1>
-            <p>Készletkezelés vállalati környezetben</p>
+        <div class="login-left modern-login-left">
+            <div class="brand-block">
+                <h1 class="brand-title">
+                    <span class="brand-white">Raktar</span><span class="brand-blue">Net</span>
+                </h1>
+
+                <p class="brand-subtitle">Készletkezelés vállalati környezetben</p>
+
+                <div class="brand-icon-box">
+                    <span class="brand-icon">📦</span>
+                </div>
+            </div>
         </div>
 
-        <div class="login-right">
+        <div class="login-right modern-login-right">
             <h2>Bejelentkezés</h2>
-            <p class="muted">Kérjük, adja meg felhasználónevét és jelszavát.</p>
+            <p class="muted login-description">Kérjük, adja meg felhasználónevét és jelszavát.</p>
 
             @if (!string.IsNullOrWhiteSpace(Model.Error))
             {
                 <div class="error-box">@Model.Error</div>
             }
 
-            <form method="post">
-
+            <form method="post" class="login-form-modern">
                 <label>Felhasználónév</label>
                 <input asp-for="Username"
                        placeholder="Felhasználónév"
@@ -26,7 +34,7 @@
                        required />
 
                 <label>Jelszó</label>
-                <div class="password-wrap">
+                <div class="password-wrap-modern">
                     <input asp-for="Password"
                            type="password"
                            placeholder="Jelszó"
@@ -34,33 +42,44 @@
                            required />
 
                     <button type="button"
-                            class="toggle-password"
-                            onclick="togglePassword()">
+                            class="toggle-password-modern"
+                            onmousedown="showPassword()"
+                            onmouseup="hidePassword()"
+                            onmouseleave="hidePassword()"
+                            ontouchstart="showPassword()"
+                            ontouchend="hidePassword()">
                         👁
                     </button>
                 </div>
 
-                <button type="submit">Belépés</button>
-
+                <button type="submit" class="login-submit-btn">Belépés</button>
             </form>
-
         </div>
 
+    </div>
+
+    <div class="login-footer-note">
+        © 2025 RaktarNet. Minden jog fenntartva.
+    </div>
+
+    <div class="login-security-box">
+        <div class="security-icon">🛡️</div>
+        <div>
+            <div class="security-title">Biztonságos belépés</div>
+            <div class="security-text">A jelszava nem kerül tárolásra, és minden adat titkosított kapcsolatban továbbítódik.</div>
+        </div>
     </div>
 </div>
 
 <script>
-    function togglePassword() {
+    function showPassword() {
         const input = document.getElementById("passwordInput");
-        const button = document.querySelector(".toggle-password");
+        if (input) input.type = "text";
+    }
 
-        if (input.type === "password") {
-            input.type = "text";
-            button.textContent = "🙈";
-        } else {
-            input.type = "password";
-            button.textContent = "👁";
-        }
+    function hidePassword() {
+        const input = document.getElementById("passwordInput");
+        if (input) input.type = "password";
     }
 
     document.addEventListener("DOMContentLoaded", function () {
