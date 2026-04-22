@@ -1,8 +1,10 @@
+
 body {
     background-color: #f4f6f9;
     font-family: Arial, sans-serif;
     margin: 0;
 }
+
 
 .topbar {
     background-color: #1f2a38;
@@ -10,24 +12,30 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
+}
+
+.topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
 .user-info {
     color: white;
     font-weight: bold;
-    text-shadow: 0 0 3px rgba(0, 0, 0, 0.4);
-    margin-left: 10px;
 }
 
+.welcome-text {
+    color: #cbd5e1;
+    font-size: 13px;
+}
+
+
 .role-badge {
-    display: inline-block;
     padding: 3px 10px;
     border-radius: 12px;
     font-size: 12px;
-    margin-left: 8px;
     font-weight: bold;
 }
 
@@ -46,19 +54,17 @@ body {
     color: white;
 }
 
+
 .logout {
     color: white;
     text-decoration: none;
-    font-weight: bold;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255,255,255,0.1);
     padding: 6px 10px;
     border-radius: 6px;
-    transition: 0.2s;
 }
 
 .logout:hover {
-    text-decoration: none;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255,255,255,0.2);
 }
 
 .container {
@@ -67,11 +73,12 @@ body {
     padding: 0 16px;
 }
 
+/* CARD */
 .card {
     background: white;
     padding: 15px;
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     margin-top: 15px;
     transition: 0.2s;
 }
@@ -80,11 +87,13 @@ body {
     transform: translateY(-2px);
 }
 
+
 .grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 18px;
 }
+
 
 .stats {
     display: grid;
@@ -93,56 +102,47 @@ body {
 }
 
 .stat {
-    background: #f8fbff;
-    border: 1px solid #dbeafe;
     border-radius: 12px;
     padding: 14px;
-    transition: 0.2s;
-}
-
-.stat:hover {
-    transform: translateY(-2px);
 }
 
 .stat span {
     display: block;
-    color: #64748b;
     font-size: 13px;
     margin-bottom: 8px;
+    color: #64748b;
 }
 
 .stat strong {
     font-size: 22px;
 }
 
-input,
-select,
-button {
-    padding: 10px 12px;
-    border-radius: 10px;
+/* SZÍNEK */
+.stat.blue { background: #e0f2fe; }
+.stat.green { background: #dcfce7; }
+.stat.red { background: #fee2e2; }
+.stat.orange { background: #fff7ed; }
+
+/* FORM */
+input, select, button {
+    padding: 10px;
+    border-radius: 8px;
     border: 1px solid #cbd5e1;
     font-size: 14px;
 }
 
-input:focus,
-select:focus {
+input:focus, select:focus {
     outline: none;
     border-color: #007bff;
-    box-shadow: 0 0 3px rgba(0, 123, 255, 0.5);
 }
 
-input[type="number"] {
-    text-align: right;
-}
 
 button {
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-    background-color: #007bff;
+    background: #007bff;
     color: white;
-    transition: 0.2s;
-    min-width: 120px;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
 }
 
 button:hover {
@@ -150,88 +150,62 @@ button:hover {
 }
 
 button.danger {
-    background-color: #dc3545;
-    color: white;
+    background: #dc3545;
 }
+
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 
 .stack-form {
     display: flex;
     flex-direction: column;
-    max-width: 360px;
     gap: 10px;
+    max-width: 360px;
 }
 
 .inline-form {
     display: flex;
-    flex-wrap: wrap;
     gap: 10px;
-    align-items: center;
-}
-
-.inline-form input {
-    min-width: 200px;
+    flex-wrap: wrap;
 }
 
 .mini-form {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     margin-top: 10px;
-    max-width: 250px;
 }
 
-.log-filter {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    align-items: center;
-    margin-bottom: 15px;
-}
 
 table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 15px;
-    background: white;
 }
 
 th {
-    background-color: #1f2a38;
+    background: #1f2a38;
     color: white;
     padding: 10px;
-    text-align: left;
 }
 
 td {
-    padding: 8px 10px;
+    padding: 8px;
     border-bottom: 1px solid #ddd;
 }
 
-tbody tr:hover {
-    background-color: #f1f5f9;
+tr:hover {
+    background: #f1f5f9;
 }
 
-td.muted {
-    text-align: center;
-    padding: 20px;
-}
-
-.muted {
-    color: #64748b;
-}
-
-.error-box {
-    background: #fee2e2;
-    color: #991b1b;
-    padding: 12px;
-    border-radius: 10px;
-    margin: 12px 0;
-}
 
 .alert {
     padding: 12px;
+    margin: 10px;
     border-radius: 8px;
-    margin-bottom: 15px;
     font-weight: bold;
 }
 
@@ -245,148 +219,110 @@ td.muted {
     color: #991b1b;
 }
 
+
 .login-page {
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 20px;
 }
 
 .login-card {
-    width: 880px;
-    max-width: 100%;
     display: grid;
     grid-template-columns: 320px 1fr;
-    background: #fff;
-    border-radius: 22px;
+    width: 850px;
+    background: white;
+    border-radius: 20px;
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
 }
 
 .login-left {
     background: #0f172a;
-    color: #fff;
-    padding: 36px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.login-left h1 {
-    margin: 0 0 10px 0;
-    font-size: 32px;
-}
-
-.login-left p,
-.login-left small {
-    color: #cbd5e1;
-    margin: 0;
+    color: white;
+    padding: 30px;
 }
 
 .login-right {
-    padding: 36px;
+    padding: 30px;
 }
 
-.login-right h2 {
-    margin-top: 0;
+.error-box {
+    background: #fee2e2;
+    color: #991b1b;
+    padding: 10px;
+    border-radius: 8px;
     margin-bottom: 10px;
 }
 
-.login-right form {
+
+.password-wrap {
     display: flex;
-    flex-direction: column;
-    gap: 10px;
+    align-items: center;
+    gap: 8px;
 }
 
-.login-right label {
-    font-weight: bold;
-    margin-top: 5px;
+.password-wrap input {
+    flex: 1;
 }
 
-.demo {
-    margin-top: 12px;
-}
-
-details summary {
-    cursor: pointer;
-    font-weight: bold;
-    color: #007bff;
-    margin-bottom: 8px;
-}
-
-details summary:hover {
-    text-decoration: underline;
-}
-
-.log-badge {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: bold;
-}
-
-.log-in {
-    background: #d1fae5;
-    color: #065f46;
-}
-
-.log-out {
-    background: #fee2e2;
-    color: #991b1b;
-}
-
-.log-new {
-    background: #dbeafe;
-    color: #1d4ed8;
-}
-
-.low-stock {
-    color: #dc2626;
-    font-weight: bold;
-}
-
-.link-button {
-    display: inline-block;
-    padding: 10px 12px;
-    border-radius: 10px;
+.toggle-password {
+    padding: 10px;
+    border-radius: 8px;
     background: #e2e8f0;
-    color: #1f2937;
-    text-decoration: none;
-    font-weight: bold;
-    transition: 0.2s;
+    cursor: pointer;
 }
 
-.link-button:hover {
+.toggle-password:hover {
     background: #cbd5e1;
 }
 
+
+.low-stock {
+    color: red;
+    font-weight: bold;
+}
+
+
+.quick-actions {
+    margin-top: 5px;
+    display: flex;
+    gap: 5px;
+}
+
+.quick-form button {
+    padding: 4px 8px;
+    font-size: 12px;
+}
+
+
+.log-badge {
+    padding: 4px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+}
+
+.log-in { background: #d1fae5; color: #065f46; }
+.log-out { background: #fee2e2; color: #991b1b; }
+.log-new { background: #dbeafe; color: #1d4ed8; }
+.log-edit { background: #fef3c7; color: #92400e; }
+.log-delete { background: #fecaca; color: #991b1b; }
+
+
+.link-button {
+    padding: 8px 10px;
+    background: #e2e8f0;
+    border-radius: 8px;
+    text-decoration: none;
+    color: black;
+}
+
+
 @media (max-width: 900px) {
-    .grid,
-    .stats,
-    .login-card {
+    .grid, .stats {
         grid-template-columns: 1fr;
     }
 
-    .topbar {
-        flex-direction: column;
-        gap: 10px;
-        align-items: flex-start;
+    .login-card {
+        grid-template-columns: 1fr;
     }
-    .stack-form input,
-.stack-form select {
-    text-align: left !important;
-}
-
-.stack-form input::placeholder {
-    text-align: left;
-}
-    input[name="mennyiseg"] {
-    text-align: left !important;
-}
-    .stack-form input:focus {
-    border-color: #2563eb;
-    box-shadow: 0 0 4px rgba(37,99,235,0.4);
-}
 }
