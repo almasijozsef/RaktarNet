@@ -179,16 +179,6 @@ body {
     opacity: 0.95;
 }
 
-.error-box {
-    background: #fee2e2;
-    color: #991b1b;
-    padding: 14px 16px;
-    border-radius: 12px;
-    margin-bottom: 10px;
-    font-size: 16px;
-    font-weight: 700;
-}
-
 .login-footer-note {
     margin-top: 26px;
     color: #7b8798;
@@ -230,7 +220,17 @@ body {
     color: #64748b;
 }
 
-/* DASHBOARD */
+.error-box {
+    background: #fee2e2;
+    color: #991b1b;
+    padding: 14px 16px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+/* TOPBAR */
 .topbar {
     background-color: #1f2a38;
     padding: 10px 20px;
@@ -256,6 +256,7 @@ body {
     font-size: 13px;
 }
 
+/* ROLE BADGE */
 .role-badge {
     padding: 3px 10px;
     border-radius: 12px;
@@ -278,6 +279,7 @@ body {
     color: white;
 }
 
+/* LOGOUT */
 .logout {
     color: white;
     text-decoration: none;
@@ -290,12 +292,14 @@ body {
     background: rgba(255,255,255,0.2);
 }
 
+/* CONTAINER */
 .container {
     max-width: 1300px;
     margin: 20px auto;
     padding: 0 16px;
 }
 
+/* CARD */
 .card {
     background: white;
     padding: 15px;
@@ -309,12 +313,20 @@ body {
     transform: translateY(-2px);
 }
 
+.card h3 {
+    margin-top: 0;
+    margin-bottom: 18px;
+    font-size: 18px;
+}
+
+/* GRID */
 .grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 18px;
 }
 
+/* STATS */
 .stats {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -324,6 +336,11 @@ body {
 .stat {
     border-radius: 12px;
     padding: 14px;
+    transition: 0.2s;
+}
+
+.stat:hover {
+    transform: translateY(-2px);
 }
 
 .stat span {
@@ -337,11 +354,23 @@ body {
     font-size: 22px;
 }
 
-.stat.blue { background: #e0f2fe; }
-.stat.green { background: #dcfce7; }
-.stat.red { background: #fee2e2; }
-.stat.orange { background: #fff7ed; }
+.stat.blue {
+    background: #e0f2fe;
+}
 
+.stat.green {
+    background: #dcfce7;
+}
+
+.stat.red {
+    background: #fee2e2;
+}
+
+.stat.orange {
+    background: #fff7ed;
+}
+
+/* FORM */
 input,
 select,
 button {
@@ -349,12 +378,17 @@ button {
     border-radius: 8px;
     border: 1px solid #cbd5e1;
     font-size: 14px;
+    box-sizing: border-box;
 }
 
 input:focus,
 select:focus {
     outline: none;
     border-color: #007bff;
+}
+
+input[type="number"] {
+    text-align: left;
 }
 
 button {
@@ -378,6 +412,7 @@ button:disabled {
     cursor: not-allowed;
 }
 
+/* FORM LAYOUT */
 .stack-form {
     display: flex;
     flex-direction: column;
@@ -385,10 +420,25 @@ button:disabled {
     max-width: 360px;
 }
 
+.stack-form input,
+.stack-form select {
+    width: 100%;
+    text-align: left;
+}
+
+.stack-form input::placeholder {
+    text-align: left;
+}
+
 .inline-form {
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
+    align-items: center;
+}
+
+.inline-form input {
+    min-width: 200px;
 }
 
 .mini-form {
@@ -396,8 +446,18 @@ button:disabled {
     flex-direction: column;
     gap: 6px;
     margin-top: 10px;
+    max-width: 250px;
 }
 
+.log-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+/* TABLE */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -408,17 +468,21 @@ th {
     background: #1f2a38;
     color: white;
     padding: 10px;
+    text-align: left;
 }
 
 td {
     padding: 8px;
     border-bottom: 1px solid #ddd;
+    vertical-align: middle;
+    word-break: break-word;
 }
 
 tr:hover {
     background: #f1f5f9;
 }
 
+/* ALERT */
 .alert {
     padding: 12px;
     margin: 10px;
@@ -436,15 +500,18 @@ tr:hover {
     color: #991b1b;
 }
 
+/* LOW STOCK */
 .low-stock {
     color: red;
     font-weight: bold;
 }
 
+/* LOG BADGE */
 .log-badge {
     padding: 4px 8px;
     border-radius: 10px;
     font-size: 12px;
+    display: inline-block;
 }
 
 .log-in { background: #d1fae5; color: #065f46; }
@@ -453,14 +520,33 @@ tr:hover {
 .log-edit { background: #fef3c7; color: #92400e; }
 .log-delete { background: #fecaca; color: #991b1b; }
 
+/* LINK BUTTON */
 .link-button {
     padding: 8px 10px;
     background: #e2e8f0;
     border-radius: 8px;
     text-decoration: none;
     color: black;
+    display: inline-block;
 }
 
+.link-button:hover {
+    background: #cbd5e1;
+}
+
+/* DETAILS */
+details summary {
+    cursor: pointer;
+    font-weight: bold;
+    color: #007bff;
+    margin-bottom: 8px;
+}
+
+details summary:hover {
+    text-decoration: underline;
+}
+
+/* RESPONSIVE */
 @media (max-width: 1100px) {
     .modern-login-card {
         grid-template-columns: 1fr;
@@ -494,5 +580,11 @@ tr:hover {
     .grid,
     .stats {
         grid-template-columns: 1fr;
+    }
+
+    .topbar {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
     }
 }
