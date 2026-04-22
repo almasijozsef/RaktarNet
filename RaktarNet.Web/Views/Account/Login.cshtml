@@ -1,15 +1,17 @@
-@model LoginViewModel
-
 <div class="login-page">
-    <div class="login-card modern-login-card">
 
-        <div class="login-left modern-login-left">
+    <div class="modern-login-card">
+
+        <!-- BAL OLDAL -->
+        <div class="modern-login-left">
             <div class="brand-block">
                 <h1 class="brand-title">
                     <span class="brand-white">Raktar</span><span class="brand-blue">Net</span>
                 </h1>
 
-                <p class="brand-subtitle">Készletkezelés vállalati környezetben</p>
+                <p class="brand-subtitle">
+                    Készletkezelés vállalati környezetben
+                </p>
 
                 <div class="brand-icon-box">
                     <span class="brand-icon">📦</span>
@@ -17,75 +19,53 @@
             </div>
         </div>
 
-        <div class="login-right modern-login-right">
-            <h2>Bejelentkezés</h2>
-            <p class="muted login-description">Kérjük, adja meg felhasználónevét és jelszavát.</p>
+        <!-- JOBB OLDAL -->
+        <div class="modern-login-right">
 
-            @if (!string.IsNullOrWhiteSpace(Model.Error))
-            {
-                <div class="error-box">@Model.Error</div>
-            }
+            <h2>Bejelentkezés</h2>
+            <p class="login-description">
+                Kérjük, adja meg felhasználónevét és jelszavát.
+            </p>
 
             <form method="post" class="login-form-modern">
+
                 <label>Felhasználónév</label>
-                <input asp-for="Username"
-                       placeholder="Felhasználónév"
-                       id="usernameInput"
-                       required />
+                <input asp-for="Username" />
 
                 <label>Jelszó</label>
                 <div class="password-wrap-modern">
-                    <input asp-for="Password"
-                           type="password"
-                           placeholder="Jelszó"
-                           id="passwordInput"
-                           required />
-
+                    <input asp-for="Password" type="password" id="passwordInput" />
                     <button type="button"
                             class="toggle-password-modern"
                             onmousedown="showPassword()"
                             onmouseup="hidePassword()"
-                            onmouseleave="hidePassword()"
-                            ontouchstart="showPassword()"
-                            ontouchend="hidePassword()">
+                            onmouseleave="hidePassword()">
                         👁
                     </button>
                 </div>
 
-                <button type="submit" class="login-submit-btn">Belépés</button>
+                <button type="submit" class="login-submit-btn">
+                    Belépés
+                </button>
+
             </form>
+
+            <div class="login-footer-note">
+                © 2025 RaktarNet. Minden jog fenntartva.
+            </div>
+
         </div>
 
     </div>
 
-    <div class="login-footer-note">
-        © 2025 RaktarNet. Minden jog fenntartva.
-    </div>
-
-    <div class="login-security-box">
-        <div class="security-icon">🛡️</div>
-        <div>
-            <div class="security-title">Biztonságos belépés</div>
-            <div class="security-text">A jelszava nem kerül tárolásra, és minden adat titkosított kapcsolatban továbbítódik.</div>
-        </div>
-    </div>
 </div>
 
 <script>
     function showPassword() {
-        const input = document.getElementById("passwordInput");
-        if (input) input.type = "text";
+        document.getElementById("passwordInput").type = "text";
     }
 
     function hidePassword() {
-        const input = document.getElementById("passwordInput");
-        if (input) input.type = "password";
+        document.getElementById("passwordInput").type = "password";
     }
-
-    document.addEventListener("DOMContentLoaded", function () {
-        const usernameInput = document.getElementById("usernameInput");
-        if (usernameInput) {
-            usernameInput.focus();
-        }
-    });
 </script>
