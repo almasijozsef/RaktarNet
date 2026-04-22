@@ -18,10 +18,11 @@
 }
 
 <div class="topbar">
-    <div>
+    <div class="topbar-left">
         <strong>RaktarNet</strong>
+
         <span class="user-info">
-            Felhasználó: @Model.CurrentUser?.Username
+            👤 Felhasználó: @Model.CurrentUser?.Username
         </span>
 
         @if (isAdmin)
@@ -36,6 +37,8 @@
         {
             <span class="role-badge role-raktaros">raktáros</span>
         }
+
+        <span class="welcome-text">Üdv, @Model.CurrentUser?.Username!</span>
     </div>
 
     <a class="logout" asp-controller="Account" asp-action="Logout">Kijelentkezés</a>
@@ -47,15 +50,15 @@
         <div class="card">
             <h3>Áttekintés</h3>
             <div class="stats">
-                <div class="stat"><span>Termékek száma</span><strong>@Model.Products.Count</strong></div>
-                <div class="stat"><span>Összes darabszám</span><strong>@Model.Products.Sum(x => x.Mennyiseg)</strong></div>
-                <div class="stat"><span>Összes készletérték</span><strong>@String.Format("{0:N0} Ft", Model.Products.Sum(x => x.Mennyiseg * x.Egysegar))</strong></div>
-                <div class="stat"><span>Naplóbejegyzések</span><strong>@Model.Logs.Count</strong></div>
+                <div class="stat blue"><span>Termékek száma</span><strong>@Model.Products.Count</strong></div>
+                <div class="stat blue"><span>Összes darabszám</span><strong>@Model.Products.Sum(x => x.Mennyiseg)</strong></div>
+                <div class="stat green"><span>Összes készletérték</span><strong>@String.Format("{0:N0} Ft", Model.Products.Sum(x => x.Mennyiseg * x.Egysegar))</strong></div>
+                <div class="stat orange"><span>Naplóbejegyzések</span><strong>@Model.Logs.Count</strong></div>
 
-                <div class="stat"><span>Mai mozgások</span><strong>@Model.MaiMozgasokSzama</strong></div>
-                <div class="stat"><span>Mai bevételezések</span><strong>@Model.MaiBevetelezesekSzama</strong></div>
-                <div class="stat"><span>Mai kiadások</span><strong>@Model.MaiKiadasokSzama</strong></div>
-                <div class="stat"><span>Alacsony készletű termékek</span><strong>@Model.AlacsonyKeszletuTermekekSzama</strong></div>
+                <div class="stat blue"><span>Mai mozgások</span><strong>@Model.MaiMozgasokSzama</strong></div>
+                <div class="stat green"><span>Mai bevételezések</span><strong>@Model.MaiBevetelezesekSzama</strong></div>
+                <div class="stat red"><span>Mai kiadások</span><strong>@Model.MaiKiadasokSzama</strong></div>
+                <div class="stat red"><span>Alacsony készlet</span><strong>@Model.AlacsonyKeszletuTermekekSzama</strong></div>
             </div>
         </div>
     }
@@ -80,24 +83,22 @@
 
         <div class="card">
             <h3>Bevételezés / Kiadás</h3>
-            <form method="post" asp-action="MoveStock" class="stack-form">
+            <form method="post" asp-action="MoveStock" class="stack-form" onsubmit="return confirmMoveStock(this)">
+                <input name="kod" placeholder="Termék kódja" required />
 
-    <input name="kod" placeholder="Termék kódja" required />
+                <select name="tipus">
+                    <option value="Bevételezés">Bevételezés</option>
+                    <option value="Kiadás">Kiadás</option>
+                </select>
 
-    <select name="tipus">
-        <option value="Bevételezés">Bevételezés</option>
-        <option value="Kiadás">Kiadás</option>
-    </select>
+                <input name="mennyiseg" type="number" placeholder="Mennyiség" min="1" required />
 
-    <input name="mennyiseg" type="number" placeholder="Mennyiség" min="1" required />
+                <input name="megjegyzes"
+                       placeholder="Megjegyzés (pl. áru beérkezése, selejt, kiadás oka)"
+                       required />
 
-    <input name="megjegyzes"
-           placeholder="Megjegyzés (pl. áru beérkezése, selejt, kiadás oka)"
-           required />
-
-    <button type="submit">💾 Mentés</button>
-
-</form>
+                <button type="submit">💾 Mentés</button>
+            </form>
         </div>
     </div>
 
@@ -111,14 +112,17 @@
                     <th>Készlet</th>
                     <th>Egységár</th>
                     <th>Utolsó módosítás</th>
-                    <th>Műveletek</th>
+                    @if (canManageProducts)
+                    {
+                        <th>Műveletek</th>
+                    }
                 </tr>
             </thead>
             <tbody>
                 @if (Model.Products == null || !Model.Products.Any())
                 {
                     <tr>
-                        <td colspan="6" class="muted">Nincs megjeleníthető termék.</td>
+                        <td colspan="6" class="muted">📦 Még nincs rögzített termék.</td>
                     </tr>
                 }
                 else
@@ -128,12 +132,33 @@
                         <tr>
                             <td>@item.Nev</td>
                             <td>@item.Kod</td>
-                            <td class="@(item.Mennyiseg <= 5 ? "low-stock" : "")">@item.Mennyiseg</td>
+                            <td class="@(item.Mennyiseg <= 5 ? "low-stock" : "")">
+                                <div>@item.Mennyiseg @if (item.Mennyiseg <= 5) { <span>⚠</span> }</div>
+
+                                <div class="quick-actions">
+                                    <form method="post" asp-action="MoveStock" class="quick-form">
+                                        <input type="hidden" name="kod" value="@item.Kod" />
+                                        <input type="hidden" name="tipus" value="Bevételezés" />
+                                        <input type="hidden" name="mennyiseg" value="1" />
+                                        <input type="hidden" name="megjegyzes" value="Gyors bevételezés" />
+                                        <button type="submit" title="Gyors bevételezés">➕</button>
+                                    </form>
+
+                                    <form method="post" asp-action="MoveStock" class="quick-form">
+                                        <input type="hidden" name="kod" value="@item.Kod" />
+                                        <input type="hidden" name="tipus" value="Kiadás" />
+                                        <input type="hidden" name="mennyiseg" value="1" />
+                                        <input type="hidden" name="megjegyzes" value="Gyors kiadás" />
+                                        <button type="submit" title="Gyors kiadás">➖</button>
+                                    </form>
+                                </div>
+                            </td>
                             <td>@item.Egysegar Ft</td>
                             <td>@item.Modositva</td>
-                            <td>
-                                @if (canManageProducts)
-                                {
+
+                            @if (canManageProducts)
+                            {
+                                <td>
                                     <details>
                                         <summary>Módosítás</summary>
 
@@ -146,13 +171,22 @@
                                             <button type="submit">💾 Mentés</button>
                                         </form>
 
-                                        <form method="post" asp-action="DeleteProduct" onsubmit="return confirm('Biztosan törlöd?');">
-                                            <input type="hidden" name="kod" value="@item.Kod" />
-                                            <button type="submit" class="danger">🗑️ Törlés</button>
-                                        </form>
+                                        @if (item.Mennyiseg > 0)
+                                        {
+                                            <button type="button" class="danger" disabled title="Nem törölhető, amíg van készleten">
+                                                🚫 Nem törölhető
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <form method="post" asp-action="DeleteProduct" onsubmit="return confirm('Biztosan törlöd?');">
+                                                <input type="hidden" name="kod" value="@item.Kod" />
+                                                <button type="submit" class="danger">🗑️ Törlés</button>
+                                            </form>
+                                        }
                                     </details>
-                                }
-                            </td>
+                                </td>
+                            }
                         </tr>
                     }
                 }
@@ -176,6 +210,8 @@
                     <option value="Új termék" selected>Új termék</option>
                     <option value="Bevételezés">Bevételezés</option>
                     <option value="Kiadás">Kiadás</option>
+                    <option value="Módosítás">Módosítás</option>
+                    <option value="Törlés">Törlés</option>
                 }
                 else if (selectedTipus == "Bevételezés")
                 {
@@ -183,6 +219,8 @@
                     <option value="Új termék">Új termék</option>
                     <option value="Bevételezés" selected>Bevételezés</option>
                     <option value="Kiadás">Kiadás</option>
+                    <option value="Módosítás">Módosítás</option>
+                    <option value="Törlés">Törlés</option>
                 }
                 else if (selectedTipus == "Kiadás")
                 {
@@ -190,6 +228,26 @@
                     <option value="Új termék">Új termék</option>
                     <option value="Bevételezés">Bevételezés</option>
                     <option value="Kiadás" selected>Kiadás</option>
+                    <option value="Módosítás">Módosítás</option>
+                    <option value="Törlés">Törlés</option>
+                }
+                else if (selectedTipus == "Módosítás")
+                {
+                    <option value="">Minden művelet</option>
+                    <option value="Új termék">Új termék</option>
+                    <option value="Bevételezés">Bevételezés</option>
+                    <option value="Kiadás">Kiadás</option>
+                    <option value="Módosítás" selected>Módosítás</option>
+                    <option value="Törlés">Törlés</option>
+                }
+                else if (selectedTipus == "Törlés")
+                {
+                    <option value="">Minden művelet</option>
+                    <option value="Új termék">Új termék</option>
+                    <option value="Bevételezés">Bevételezés</option>
+                    <option value="Kiadás">Kiadás</option>
+                    <option value="Módosítás">Módosítás</option>
+                    <option value="Törlés" selected>Törlés</option>
                 }
                 else
                 {
@@ -197,6 +255,8 @@
                     <option value="Új termék">Új termék</option>
                     <option value="Bevételezés">Bevételezés</option>
                     <option value="Kiadás">Kiadás</option>
+                    <option value="Módosítás">Módosítás</option>
+                    <option value="Törlés">Törlés</option>
                 }
             </select>
 
@@ -255,6 +315,14 @@
                                 else if (log.Tipus == "Új termék")
                                 {
                                     <span class="log-badge log-new">@log.Tipus</span>
+                                }
+                                else if (log.Tipus == "Módosítás")
+                                {
+                                    <span class="log-badge log-edit">@log.Tipus</span>
+                                }
+                                else if (log.Tipus == "Törlés")
+                                {
+                                    <span class="log-badge log-delete">@log.Tipus</span>
                                 }
                                 else
                                 {
@@ -394,4 +462,29 @@
 
         return confirm(uzenet);
     }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const kodInput = document.querySelector('input[name="kod"]');
+        if (kodInput) {
+            kodInput.focus();
+        }
+
+        document.querySelectorAll("form").forEach(form => {
+            form.addEventListener("submit", function () {
+                const btn = form.querySelector("button");
+                if (btn) {
+                    btn.disabled = true;
+                }
+            });
+        });
+    });
+
+    setTimeout(() => {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            alert.style.transition = 'opacity 0.5s';
+            alert.style.opacity = '0';
+            setTimeout(() => alert.remove(), 500);
+        });
+    }, 3000);
 </script>
