@@ -2,9 +2,10 @@
 
 <div class="login-page">
     <div class="login-card">
+
         <div class="login-left">
             <h1>RaktarNet</h1>
-            <p>Raktárkészlet-nyilvántartó rendszer</p>
+            <p>Készletkezelés vállalati környezetben</p>
         </div>
 
         <div class="login-right">
@@ -17,16 +18,55 @@
             }
 
             <form method="post">
+
                 <label>Felhasználónév</label>
-                <input asp-for="Username" placeholder="Felhasználónév" />
+                <input asp-for="Username"
+                       placeholder="Felhasználónév"
+                       id="usernameInput"
+                       required />
 
                 <label>Jelszó</label>
-                <input asp-for="Password" type="password" placeholder="Jelszó" />
+                <div class="password-wrap">
+                    <input asp-for="Password"
+                           type="password"
+                           placeholder="Jelszó"
+                           id="passwordInput"
+                           required />
 
-                <button type="submit">🔐 Belépés</button>
+                    <button type="button"
+                            class="toggle-password"
+                            onclick="togglePassword()">
+                        👁
+                    </button>
+                </div>
+
+                <button type="submit">Belépés</button>
+
             </form>
 
-            <p class="muted demo">Csak jogosult felhasználók számára elérhető.</p>
         </div>
+
     </div>
 </div>
+
+<script>
+    function togglePassword() {
+        const input = document.getElementById("passwordInput");
+        const button = document.querySelector(".toggle-password");
+
+        if (input.type === "password") {
+            input.type = "text";
+            button.textContent = "🙈";
+        } else {
+            input.type = "password";
+            button.textContent = "👁";
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const usernameInput = document.getElementById("usernameInput");
+        if (usernameInput) {
+            usernameInput.focus();
+        }
+    });
+</script>
