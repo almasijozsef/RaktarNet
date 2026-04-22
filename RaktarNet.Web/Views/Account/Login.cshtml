@@ -1,8 +1,8 @@
-<div class="login-page">
+@model RaktarNet.Web.Models.LoginViewModel
 
+<div class="login-page">
     <div class="modern-login-card">
 
-        <!-- BAL OLDAL -->
         <div class="modern-login-left">
             <div class="brand-block">
                 <h1 class="brand-title">
@@ -19,53 +19,78 @@
             </div>
         </div>
 
-        <!-- JOBB OLDAL -->
         <div class="modern-login-right">
-
             <h2>Bejelentkezés</h2>
             <p class="login-description">
                 Kérjük, adja meg felhasználónevét és jelszavát.
             </p>
 
+            @if (!string.IsNullOrWhiteSpace(Model.Error))
+            {
+                <div class="error-box">@Model.Error</div>
+            }
+
             <form method="post" class="login-form-modern">
+                <label for="usernameInput">Felhasználónév</label>
+                <input asp-for="Username"
+                       id="usernameInput"
+                       placeholder="Felhasználónév"
+                       required />
 
-                <label>Felhasználónév</label>
-                <input asp-for="Username" />
-
-                <label>Jelszó</label>
+                <label for="passwordInput">Jelszó</label>
                 <div class="password-wrap-modern">
-                    <input asp-for="Password" type="password" id="passwordInput" />
+                    <input asp-for="Password"
+                           id="passwordInput"
+                           type="password"
+                           placeholder="Jelszó"
+                           required />
+
                     <button type="button"
                             class="toggle-password-modern"
                             onmousedown="showPassword()"
                             onmouseup="hidePassword()"
-                            onmouseleave="hidePassword()">
+                            onmouseleave="hidePassword()"
+                            ontouchstart="showPassword()"
+                            ontouchend="hidePassword()">
                         👁
                     </button>
                 </div>
 
-                <button type="submit" class="login-submit-btn">
-                    Belépés
-                </button>
-
+                <button type="submit" class="login-submit-btn">Belépés</button>
             </form>
-
-            <div class="login-footer-note">
-                © 2025 RaktarNet. Minden jog fenntartva.
-            </div>
-
         </div>
-
     </div>
 
+    <div class="login-footer-note">
+        © 2025 RaktarNet. Minden jog fenntartva.
+    </div>
+
+    <div class="login-security-box">
+        <div class="security-icon">🛡️</div>
+        <div>
+            <div class="security-title">Biztonságos belépés</div>
+            <div class="security-text">
+                A jelszava nem kerül tárolásra, és minden adat titkosított kapcsolatban továbbítódik.
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
     function showPassword() {
-        document.getElementById("passwordInput").type = "text";
+        const input = document.getElementById("passwordInput");
+        if (input) input.type = "text";
     }
 
     function hidePassword() {
-        document.getElementById("passwordInput").type = "password";
+        const input = document.getElementById("passwordInput");
+        if (input) input.type = "password";
     }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const usernameInput = document.getElementById("usernameInput");
+        if (usernameInput) {
+            usernameInput.focus();
+        }
+    });
 </script>
