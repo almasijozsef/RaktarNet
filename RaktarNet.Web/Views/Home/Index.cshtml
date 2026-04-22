@@ -133,25 +133,11 @@
                             <td>@item.Nev</td>
                             <td>@item.Kod</td>
                             <td class="@(item.Mennyiseg <= 5 ? "low-stock" : "")">
-                                <div>@item.Mennyiseg @if (item.Mennyiseg <= 5) { <span>⚠</span> }</div>
-
-                                <div class="quick-actions">
-                                    <form method="post" asp-action="MoveStock" class="quick-form">
-                                        <input type="hidden" name="kod" value="@item.Kod" />
-                                        <input type="hidden" name="tipus" value="Bevételezés" />
-                                        <input type="hidden" name="mennyiseg" value="1" />
-                                        <input type="hidden" name="megjegyzes" value="Gyors bevételezés" />
-                                        <button type="submit" title="Gyors bevételezés">➕</button>
-                                    </form>
-
-                                    <form method="post" asp-action="MoveStock" class="quick-form">
-                                        <input type="hidden" name="kod" value="@item.Kod" />
-                                        <input type="hidden" name="tipus" value="Kiadás" />
-                                        <input type="hidden" name="mennyiseg" value="1" />
-                                        <input type="hidden" name="megjegyzes" value="Gyors kiadás" />
-                                        <button type="submit" title="Gyors kiadás">➖</button>
-                                    </form>
-                                </div>
+                                @item.Mennyiseg
+                                @if (item.Mennyiseg <= 5)
+                                {
+                                    <span> ⚠</span>
+                                }
                             </td>
                             <td>@item.Egysegar Ft</td>
                             <td>@item.Modositva</td>
