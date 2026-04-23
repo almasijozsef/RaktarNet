@@ -133,12 +133,12 @@
                             <td>@item.Nev</td>
                             <td>@item.Kod</td>
                             <td class="@(item.Mennyiseg <= 5 ? "low-stock" : "")">
-                                @item.Mennyiseg
-                                @if (item.Mennyiseg <= 5)
-                                {
-                                    <span> ⚠</span>
-                                }
-                            </td>
+    @item.Mennyiseg
+    @if (item.Mennyiseg <= 5)
+    {
+        <span class="stock-warning-icon" title="Alacsony raktárkészlet">⚠</span>
+    }
+</td>
                             <td>@item.Egysegar Ft</td>
                             <td>@item.Modositva</td>
 
