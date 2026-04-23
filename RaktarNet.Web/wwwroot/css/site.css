@@ -594,4 +594,8 @@ details summary:hover {
         gap: 10px;
         align-items: flex-start;
     }
+    .stock-warning-icon {
+    margin-left: 6px;
+    cursor: help;
+}
 }
